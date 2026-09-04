@@ -55,7 +55,7 @@ Seguimos las **Reglas de Oro** exigidas para garantizar la calidad del código:
 * [ ] Actualizar README, datos de prueba e instrucciones de ejecución
 
 ### Retro TP1
-* **Lo que salió bien:** *[Completar al finalizar el Sprint]*
-* **A mejorar:** *[Completar al finalizar el Sprint]*
+* **Lo que salió bien:** *Animarse a ser autodidacta y tener autogestión sobre las tareas y prácticas*
+* **A mejorar:** *Dejar de querer tener el control (para Celi) y perder el miedo a romper cosas (Iari)*
 
 ```
