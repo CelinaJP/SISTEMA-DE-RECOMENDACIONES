@@ -72,3 +72,37 @@ Popularidad    | 78/100                | 91/100
 ------------------------------------------------------------
 ¿Deseas agregar la versión clásica a tu cola de reproducción? (S/N): S
 ¡Agregada con éxito a la cola!
+
+## 6. Requerimientos
+
+### Requerimientos Funcionales (RF)
+
+Los requerimientos funcionales especifican las operaciones y comportamientos concretos que el sistema debe ejecutar ante las solicitudes del usuario o eventos internos. En términos operativos, establecen las capacidades y funciones específicas de la aplicación.
+
+* **RF01 — Top 10 Dinámico de Popularidad:** El sistema debe permitir mostrar y ordenar el catálogo según la métrica de reproducción o popularidad global.
+* **RF02 — Playlist por Tiempo Límite:** El sistema debe generar una selección o playlist de canciones ajustada a una duración máxima en minutos ingresada por el usuario, sin superar dicho tiempo.
+* **RF03 — Explorador por Colaborador:** El sistema debe permitir consultar y recuperar todas las canciones en las que participa un artista invitado específico.
+* **RF04 — Filtro por Era / Etapa:** El sistema debe permitir filtrar el catálogo de canciones discriminando por su época de lanzamiento (Era Clásica $< 2010$ y Era Moderna / Hotel Miranda! $\ge 2020$).
+* **RF05 — Recomendación por Mood / Género:** El sistema debe sugerir o recomendar canciones similares a partir de una obra base seleccionada por el usuario, evaluando coincidencias de género y mood.
+* **RF06 — Comparador de Versiones:** El sistema debe permitir comparar en paralelo las métricas (duración, popularidad y colaboradores) de la versión clásica original frente a su re-versión moderna de Hotel Miranda!.
+* **RF07 — Puente Temporal:** El sistema debe permitir conectar y sugerir el paso directo entre la versión moderna de una canción y su versión clásica original.
+
+### Requerimientos No Funcionales (RNF)
+
+Los requerimientos no funcionales establecen los criterios de calidad, restricciones y propiedades de rendimiento del software. Definen el "cómo opera" el sistema en términos de eficiencia, mantenibilidad, plataforma y arquitectura.
+
+* **RNF01 — Rendimiento:** Las operaciones de búsqueda, filtrado y comparación entre versiones deben responder con un tiempo de respuesta aceptable manejando datasets de más de 1.000 registros en memoria.
+* **RNF02 — Persistencia y Carga Local:** El sistema debe poblar sus estructuras de datos a partir de archivos estructurados locales en formato JSON o CSV, sin requerir llamadas externas a APIs en tiempo de ejecución.
+* **RNF03 — Modularidad y Arquitectura:** La aplicación debe estar estructurada en capas independientes (Modelos, Servicios e Interfaz de Usuario), garantizando bajo acoplamiento y encapsulamiento adecuado.
+* **RNF04 — Interfaz de Usuario:** La interacción con el usuario debe llevarse a cabo mediante una interfaz de línea de comandos (CLI) intuitiva, formateada y clara en formato de texto.
+* **RNF05 — Compatibilidad:** El código debe ser completamente ejecutable en un entorno Python 3.10+ sin depender de librerías externas complejas no contempladas en la materia.
+
+## 7. Fuera de alcance
+
+Con el objetivo de acotar el proyecto a las exigencias académicas de la cátedra, el sistema explícitamente **no** incluirá:
+
+* **Autenticación y usuarios:** No se gestionarán cuentas de usuario, sesiones ni perfiles personalizados.
+* **Reproducción de audio:** El sistema no reproducirá archivos de sonido real (`.mp3`, `.wav`), operando únicamente sobre los metadatos de las canciones.
+* **Integración con APIs o servicios en la nube:** La aplicación funcionará de manera 100% local y offline, sin conectarse en tiempo real a plataformas como Spotify o Last.fm.
+* **Interfaz gráfica de usuario (GUI):** No se desarrollará ninguna interfaz visual moderna (web, escritorio o móvil); la interacción será exclusivamente en texto por terminal.
+* **Persistencia de modificaciones:** No se implementarán funciones para agregar, editar o eliminar canciones del archivo JSON desde la consola durante la ejecución del programa.
