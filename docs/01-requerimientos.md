@@ -72,6 +72,7 @@ Popularidad    | 78/100                | 91/100
 ------------------------------------------------------------
 ¿Deseas agregar la versión clásica a tu cola de reproducción? (S/N): S
 ¡Agregada con éxito a la cola!
+```
 
 ## 6. Requerimientos
 
