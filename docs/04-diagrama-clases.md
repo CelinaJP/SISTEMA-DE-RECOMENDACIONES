@@ -24,9 +24,11 @@ classDiagram
         -titulo: str
         -artista_principal: str
         -colaboradores: list
+        -album: str
         -anio: int
         -era: str
         -duracion: str
+        -duracion_segundos: int
         -genero: str
         -mood: str
         -popularidad: int
