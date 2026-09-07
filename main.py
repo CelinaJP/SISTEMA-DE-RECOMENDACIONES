@@ -2,7 +2,7 @@ from servicios.gestor_catalogo import cargar_catalogo
 
 def mostrar_menu():
     print("\n" + "="*60)
-    print("       POPBOT — MIRANDA! EDITION (Recomendador Pop)")
+    print("    EL BOT DE TU CORAZÓN — MIRANDA! (Recomendador Pop)")
     print("="*60)
     print(" 1. Cargar y verificar catálogo de canciones")
     print(" 0. Salir")
