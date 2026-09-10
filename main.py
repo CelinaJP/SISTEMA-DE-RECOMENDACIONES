@@ -61,8 +61,7 @@ class MenuInicio:
                     print(f"{i}. {self._formatear_cancion(c)} | Popularidad: {pop}")
             else:
                 print("No hay canciones registradas en el catálogo.")
-
-        # 2. BUSCAR
+                
         # 2. BUSCAR CANCIÓN
         elif opcion == "2":
             self.limpiar_pantalla()
@@ -193,7 +192,7 @@ class MenuInicio:
                 print(f"[En desarrollo] Esta opción usará '{metodo_nombre}()' cuando lo agreguen al catálogo.")
 
         elif opcion == "0":
-            print("\n¡Gracias por usar POPBOT!")
+            print("\n¡Gracias por usar EL BOT!")
             return False
 
         else:
