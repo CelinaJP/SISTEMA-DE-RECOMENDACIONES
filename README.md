@@ -5,6 +5,12 @@ Sistema de recomendación y exploración del catálogo musical de **Miranda!** q
 
 ---
 
+## Integrantes
+Celina Jazmin Pereyra
+Iara Stefania Santarella
+
+---
+
 ## 📋 Tabla de Contenidos
 - [Descripción del Proyecto](#descripción-del-proyecto)
 - [Dominio y Justificación](#1-dominio-elegido-y-justificación)
@@ -82,6 +88,13 @@ SISTEMA-DE-RECOMENDACIONES/
 ├── main.py                     # Punto de entrada de la aplicación
 └── README.md                   # Documentación principal
 ```
+---
+
+## Estado
+TP0 COMPLETADO
+TP1 INCOMPLETO 
+
+---
 
 ## Instalación y ejecución
 
