@@ -2,11 +2,24 @@
 
 ## TP0
 
+## Eligiendo el Universo
+
+Para la consigna general del sistema de recomendaciones, el universo elegido es: Música (Mismo Artista/Colaboración).
+El catálogo de **Miranda!** resulta el escenario perfecto para construir un Sistema de Recomendación aplicado a Estructuras de Datos.
+
+---
+
 ## TP1
+
+## Creando las bases: 
+
+En la carpeta `modelo`, destinada a implementar las clases base del dominio, se creo un archivo independiente para cada clase principal. Esto responde a una buena práctica que permite trabajar de forma más clara y ordenada. Separar el código en múltiples archivos es clave no solo para mantener la prolijidad visual, sino también para diseñar un proyecto modular, profesional y fácil de mantener. 
+
+---
 
 ## TP2 - Análisis de complejidad y justificación: Estrategia de Búsqueda por Género Musical
 
-## 1. Definición del Problema
+## Definición del Problema
 
 Dentro del sistema **"EL BOT DE TU CORAZÓN"** (Catálogo y Recomendador de Miranda!), una de las operaciones con mayor frecuencia de ejecución es la **Búsqueda de Canciones por Género Musical** (por ejemplo: *Electropop, Pop Latino, Disco, Synth-pop, Urban Pop*).
 
@@ -14,14 +27,14 @@ En catálogos extensos con miles de canciones, versiones clásicas y re-versione
 
 ---
 
-## 2. Estrategias Implementadas
+## Estrategias Implementadas
 
 - **A. Búsqueda Secuencial - Lista Enlazada:** Recorrido lineal elemento a elemento desde el inicio de la lista de géneros/canciones hasta encontrar las coincidencias del género solicitado.
 - **B. Árbol Binario de Búsqueda (ABB):** Estructura jerárquica con nodos indexados y ordenados alfabéticamente por el nombre del género, que permite descartar la mitad del espacio de búsqueda en cada comparación y recuperar la lista de canciones asociada a dicho género.
 
 ---
 
-## 3. Experimentos y Medición de Rendimiento
+## Experimentos y Medición de Rendimiento
 
 Se ejecutó un script de pruebas en Python sobre datasets sintéticos de géneros y canciones con entradas de $N = 1.000$, $N = 10.000$ y $N = 100.000$ elementos. Se midió el tiempo promedio de ejecución en milisegundos ($ms$) para ambas estrategias:
 
@@ -33,7 +46,7 @@ Se ejecutó un script de pruebas en Python sobre datasets sintéticos de género
 
 ---
 
-## 4. Análisis de Complejidad Algorítmica
+## Análisis de Complejidad Algorítmica
 
 ### Estrategia A: Búsqueda Secuencial
 
@@ -49,7 +62,7 @@ Se ejecutó un script de pruebas en Python sobre datasets sintéticos de género
 
 ---
 
-## 5. Justificación Técnica y Conclusión
+## Justificación Técnica y Conclusión
 
 Se seleccionó la **Estrategia B (Árbol Binario de Búsqueda indexado por Género)** por su rendimiento superior en catálogos extensos. Esta estructura permite localizar cualquier género en tiempo logarítmico y acceder a sus canciones asociadas de forma casi instantánea, eliminando la necesidad de recorrer todo el catálogo secuencialmente.
 
