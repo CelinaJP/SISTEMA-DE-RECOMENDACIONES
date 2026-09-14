@@ -167,6 +167,59 @@ class ArbolBinarioBusqueda:
         else:
             return self._buscar_nodo(nodo.derecha, clave)
 
+
+    def inorder(self) -> List[str]:
+        claves: List[str] = []
+        self._inorder_recursivo(self._raiz, claves)
+        return claves
+ 
+    def _inorder_recursivo(self, nodo: Optional[NodoArbol], acumulador: List[str]) -> None:
+        if nodo is None:
+            return
+        self._inorder_recursivo(nodo.izquierda, acumulador)
+        acumulador.append(nodo.clave)
+        self._inorder_recursivo(nodo.derecha, acumulador)
+ 
+    def preorder(self) -> List[str]:
+        claves: List[str] = []
+        self._preorder_recursivo(self._raiz, claves)
+        return claves
+ 
+    def _preorder_recursivo(self, nodo: Optional[NodoArbol], acumulador: List[str]) -> None:
+        if nodo is None:
+            return
+        acumulador.append(nodo.clave)
+        self._preorder_recursivo(nodo.izquierda, acumulador)
+        self._preorder_recursivo(nodo.derecha, acumulador)
+ 
+    def postorder(self) -> List[str]:
+        claves: List[str] = []
+        self._postorder_recursivo(self._raiz, claves)
+        return claves
+ 
+    def _postorder_recursivo(self, nodo: Optional[NodoArbol], acumulador: List[str]) -> None:
+        if nodo is None:
+            return
+        self._postorder_recursivo(nodo.izquierda, acumulador)
+        self._postorder_recursivo(nodo.derecha, acumulador)
+        acumulador.append(nodo.clave)
+ 
+    def imprimir(self) -> None:
+        if self.esta_vacio():
+            print(f"{self._nombre}: (árbol vacío)")
+            return
+ 
+        print(f"{self._nombre}:")
+        self._imprimir_recursivo(self._raiz, nivel=0)
+ 
+    def _imprimir_recursivo(self, nodo: Optional[NodoArbol], nivel: int) -> None:
+        if nodo is None:
+            return
+        self._imprimir_recursivo(nodo.derecha, nivel + 1)
+        sangria = "  " * nivel
+        print(f"{sangria}{nodo.clave} ({len(nodo.elementos)})")
+        self._imprimir_recursivo(nodo.izquierda, nivel + 1)
+
 class ArbolPorTitulo(ArbolBinarioBusqueda):
     
     def __init__(self):
@@ -227,4 +280,10 @@ if __name__ == "__main__":
     print("Búsqueda por título inexistente 'No Existe':", arbol_titulos.buscar_por_titulo("No Existe"))
     print("Búsqueda por artista 'Lali':", arbol_artistas.buscar_por_artista("Lali"))
     print("Búsqueda por artista inexistente 'Nadie':", arbol_artistas.buscar_por_artista("Nadie"))
-    
+     # Demo Issue 3: recorridos e impresión
+    print("\nInorder (títulos, alfabético):", arbol_titulos.inorder())
+    print("Preorder (títulos):", arbol_titulos.preorder())
+    print("Postorder (títulos):", arbol_titulos.postorder())
+    print()
+    arbol_artistas.imprimir()
+ 
