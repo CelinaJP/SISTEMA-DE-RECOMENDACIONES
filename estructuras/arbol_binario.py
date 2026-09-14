@@ -141,6 +141,31 @@ class ArbolBinarioBusqueda:
     def __str__(self) -> str:
         return f"{self._nombre}({self._cantidad_claves} claves)"
 
+    def buscar(self, clave: str) -> List[Cancion]:
+        if not clave:
+            return []
+ 
+        nodo = self._buscar_nodo(self._raiz, clave)
+        return list(nodo.elementos) if nodo is not None else []
+    
+    def existe(self, clave: str) -> bool:
+        if not clave:
+            return False
+        return self._buscar_nodo(self._raiz, clave) is not None
+     
+    def _buscar_nodo(self, nodo: Optional[NodoArbol], clave: str) -> Optional[NodoArbol]:
+        if nodo is None:
+            return None
+ 
+        clave_normalizada = _normalizar(clave)
+        clave_nodo_normalizada = _normalizar(nodo.clave)
+ 
+        if clave_normalizada == clave_nodo_normalizada:
+            return nodo
+        elif clave_normalizada < clave_nodo_normalizada:
+            return self._buscar_nodo(nodo.izquierda, clave)
+        else:
+            return self._buscar_nodo(nodo.derecha, clave)
 
 class ArbolPorTitulo(ArbolBinarioBusqueda):
     
@@ -155,6 +180,10 @@ class ArbolPorTitulo(ArbolBinarioBusqueda):
         canciones = catalogo.listar() if hasattr(catalogo, "listar") else []
         for cancion in canciones:
             self.insertar_cancion(cancion)
+
+    def buscar_por_titulo(self, titulo: str) -> List[Cancion]:
+        return self.buscar(titulo)
+ 
 
 class ArbolPorArtista(ArbolBinarioBusqueda):
 
@@ -173,7 +202,9 @@ class ArbolPorArtista(ArbolBinarioBusqueda):
         for cancion in canciones:
             self.insertar_cancion(cancion)
 
-
+    def buscar_por_artista(self, artista: str) -> List[Cancion]:
+        return self.buscar(artista)
+    
 if __name__ == "__main__":
     arbol_titulos = ArbolPorTitulo()
     arbol_artistas = ArbolPorArtista()
@@ -192,4 +223,8 @@ if __name__ == "__main__":
 
     print(arbol_titulos, "| Raíz:", arbol_titulos.raiz)
     print(arbol_artistas, "| Raíz:", arbol_artistas.raiz)
+    print("\nBúsqueda por título 'Traición':", arbol_titulos.buscar_por_titulo("Traición"))
+    print("Búsqueda por título inexistente 'No Existe':", arbol_titulos.buscar_por_titulo("No Existe"))
+    print("Búsqueda por artista 'Lali':", arbol_artistas.buscar_por_artista("Lali"))
+    print("Búsqueda por artista inexistente 'Nadie':", arbol_artistas.buscar_por_artista("Nadie"))
     
