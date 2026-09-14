@@ -12,8 +12,7 @@ class MenuInicio:
         arbol_artistas: ArbolPorArtista = None,
     ):
         self.catalogo = catalogo
-        # Issue 4: árboles binarios de búsqueda (título / artista), usados
-        # en la opción 2 (buscar) y en la opción 5 (explorar colaborador).
+        
         self.arbol_titulos = arbol_titulos
         self.arbol_artistas = arbol_artistas
  
@@ -110,7 +109,7 @@ class MenuInicio:
                 print(f"\nNo se encontraron canciones para '{criterio}'.")
                 print("(Búsqueda exacta por título/artista — revisá mayúsculas o probá la opción 3 para búsqueda parcial).")
  
-        # 3. FILTRAR CANCIONES
+
         elif opcion == "3":
             self.limpiar_pantalla()
             print("--- FILTRAR CANCIONES ---")
@@ -162,7 +161,7 @@ class MenuInicio:
             else:
                 print("Filtro cancelado: el texto no puede estar vacío.")
  
-        # 5. EXPLORAR COLABORADOR (Issue 4: ahora usa el ABB por artista)
+
         elif opcion == "5":
             self.limpiar_pantalla()
             print("--- EXPLORAR COLABORADOR ---")
