@@ -2,6 +2,7 @@
 from typing import List, Optional
 from modelos.cancion import Cancion
 
+
 def _normalizar(texto: str) -> str:
     if not texto:
         return ""
