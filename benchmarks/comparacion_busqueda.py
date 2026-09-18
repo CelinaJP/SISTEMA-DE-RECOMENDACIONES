@@ -1,140 +1,80 @@
-"""
-Script de comparación de rendimiento: Búsqueda Secuencial vs Árbol Binario
-de Búsqueda (ABB), aplicado a la búsqueda de canciones por título.
-
-Genera datasets sintéticos de N = 1.000, 10.000 y 100.000 canciones con
-títulos únicos, y mide el tiempo promedio de búsqueda para:
-
-- Búsqueda Secuencial: recorrido lineal de una lista de `Cancion`,
-  comparando título por título (equivalente a lo que hacía `Catalogo`
-  antes de incorporar el ABB).
-- Búsqueda en Árbol Binario: `ArbolPorTitulo.buscar_por_titulo(...)`.
-
-Se mide tanto el caso "título existente" (búsqueda exitosa) como el caso
-"título inexistente" (peor caso: hay que recorrer todo el árbol/lista).
-
-Relacionado con: TP3 - Árbol Binario / Issue 5 (Script de comparación de
-rendimiento). Los resultados de este script son los que respaldan la
-tabla de tiempos de `TP2_analisis_complejidad.md`.
-
-Uso:
-    python benchmarks/comparacion_busqueda.py
-"""
-
-import csv
+import sys
 import os
-import random
-import string
 import time
-from typing import List, Tuple
+import csv
 
-from modelos.cancion import Cancion
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from estructuras.arbol_binario import ArbolPorTitulo
+from servicios.gestor_catalogo import Catalogo
 
+def busqueda_secuencial(lista, titulo):
+    for c in lista:
+        if getattr(c, "titulo", "").lower() == titulo.lower():
+            return c
+    return None
 
-def generar_dataset(n: int, semilla: int = 42) -> List[Cancion]:
-    """Genera N canciones sintéticas con títulos únicos y reproducibles
-    (misma semilla = mismo dataset, para que el benchmark sea repetible).
-    """
-    random.seed(semilla)
-    canciones: List[Cancion] = []
-    titulos_usados = set()
+def busqueda_binaria(lista_ordenada, titulo):
+    inicio = 0
+    fin = len(lista_ordenada) - 1
+    target = titulo.lower()
+    while inicio <= fin:
+        medio = (inicio + fin) // 2
+        actual = getattr(lista_ordenada[medio], "titulo", "").lower()
+        if actual == target:
+            return lista_ordenada[medio]
+        elif actual < target:
+            inicio = medio + 1
+        else:
+            fin = medio - 1
+    return None
 
-    for i in range(n):
-        while True:
-            sufijo = "".join(random.choices(string.ascii_lowercase, k=6))
-            titulo = f"Cancion Sintetica {i}-{sufijo}"
-            if titulo not in titulos_usados:
-                titulos_usados.add(titulo)
-                break
-        canciones.append(Cancion(i, titulo, "Artista Sintetico"))
-
-    return canciones
-
-
-def busqueda_secuencial(canciones: List[Cancion], titulo_buscado: str) -> List[Cancion]:
-    """Búsqueda secuencial equivalente a la de TP2: recorre la lista
-    completa comparando título por título.
-    """
-    return [c for c in canciones if c.titulo == titulo_buscado]
-
-
-def medir_tiempo_promedio_ms(func, *args, repeticiones: int = 200) -> float:
-    """Ejecuta `func(*args)` `repeticiones` veces y devuelve el tiempo
-    promedio por ejecución, en milisegundos.
-    """
-    inicio = time.perf_counter()
-    for _ in range(repeticiones):
-        func(*args)
-    fin = time.perf_counter()
-    return (fin - inicio) / repeticiones * 1000
-
-
-def ejecutar_benchmark(n: int, repeticiones: int = 200) -> Tuple[float, float, float, float]:
-    """Corre el benchmark para un tamaño de dataset `n`.
-
-    Devuelve una tupla:
-        (secuencial_encontrado_ms, abb_encontrado_ms,
-         secuencial_no_encontrado_ms, abb_no_encontrado_ms)
-    """
-    canciones = generar_dataset(n)
-
+def ejecutar_benchmark():
+    catalogo = Catalogo()
+    catalogo.cargar_desde_json("datos/miranda_canciones.json")
+    canciones = catalogo.listar() if hasattr(catalogo, "listar") else catalogo.canciones
+    
+    canciones_ordenadas = sorted(canciones, key=lambda c: getattr(c, "titulo", "").lower())
+    
     arbol = ArbolPorTitulo()
-    for cancion in canciones:
-        arbol.insertar_cancion(cancion)
+    arbol.cargar_desde_catalogo(catalogo)
 
-    # Título existente: el del medio de la lista (caso promedio realista,
-    # ni mejor caso -primero/raíz- ni artificialmente favorable).
-    titulo_existente = canciones[n // 2].titulo
-    titulo_inexistente = "Titulo Que Nunca Fue Insertado XYZ"
+    target = "Don"
+    iteraciones = 10000
 
-    sec_encontrado = medir_tiempo_promedio_ms(
-        busqueda_secuencial, canciones, titulo_existente, repeticiones=repeticiones
-    )
-    abb_encontrado = medir_tiempo_promedio_ms(
-        arbol.buscar_por_titulo, titulo_existente, repeticiones=repeticiones
-    )
-    sec_no_encontrado = medir_tiempo_promedio_ms(
-        busqueda_secuencial, canciones, titulo_inexistente, repeticiones=repeticiones
-    )
-    abb_no_encontrado = medir_tiempo_promedio_ms(
-        arbol.buscar_por_titulo, titulo_inexistente, repeticiones=repeticiones
-    )
+    # 1. Secuencial
+    t0 = time.perf_counter()
+    for _ in range(iteraciones):
+        busqueda_secuencial(canciones, target)
+    t_secuencial = (time.perf_counter() - t0) / iteraciones
 
-    return sec_encontrado, abb_encontrado, sec_no_encontrado, abb_no_encontrado
+    # 2. Binaria
+    t0 = time.perf_counter()
+    for _ in range(iteraciones):
+        busqueda_binaria(canciones_ordenadas, target)
+    t_binaria = (time.perf_counter() - t0) / iteraciones
 
+    # 3. Árbol BST
+    t0 = time.perf_counter()
+    for _ in range(iteraciones):
+        arbol.buscar_por_titulo(target)
+    t_arbol = (time.perf_counter() - t0) / iteraciones
 
-def exportar_csv(resultados: List[Tuple[int, float, float, float, float]], ruta: str) -> None:
-    os.makedirs(os.path.dirname(ruta), exist_ok=True)
-    with open(ruta, "w", newline="", encoding="utf-8") as archivo:
-        writer = csv.writer(archivo)
-        writer.writerow([
-            "N",
-            "secuencial_encontrado_ms",
-            "abb_encontrado_ms",
-            "secuencial_no_encontrado_ms",
-            "abb_no_encontrado_ms",
-        ])
-        for fila in resultados:
-            writer.writerow(fila)
+    # Guardar en CSV
+    os.makedirs("benchmarks", exist_ok=True)
+    csv_path = "benchmarks/resultados_comparacion.csv"
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Estrategia", "Tiempo_Promedio_Segundos", "Complejidad_Teorica"])
+        writer.writerow(["Secuencial", f"{t_secuencial:.8f}", "O(n)"])
+        writer.writerow(["Binaria", f"{t_binaria:.8f}", "O(log n)"])
+        writer.writerow(["Arbol_BST", f"{t_arbol:.8f}", "O(log n)"])
 
-
-def main():
-    tamanos = [1_000, 10_000, 100_000]
-    resultados = []
-
-    print(f"{'N':>10} | {'Secuencial (ms)':>16} | {'ABB (ms)':>10} | {'Secuencial no enc. (ms)':>24} | {'ABB no enc. (ms)':>16}")
-    print("-" * 88)
-
-    for n in tamanos:
-        sec_ok, abb_ok, sec_no, abb_no = ejecutar_benchmark(n)
-        resultados.append((n, sec_ok, abb_ok, sec_no, abb_no))
-        print(f"{n:>10} | {sec_ok:>16.4f} | {abb_ok:>10.4f} | {sec_no:>24.4f} | {abb_no:>16.4f}")
-
-    ruta_csv = os.path.join(os.path.dirname(__file__), "resultados_comparacion.csv")
-    exportar_csv(resultados, ruta_csv)
-    print(f"\nResultados exportados a: {ruta_csv}")
-
+    print("--- RESULTADOS BENCHMARK ---")
+    print(f"Secuencial: {t_secuencial:.8f} s (O(n))")
+    print(f"Binaria:    {t_binaria:.8f} s (O(log n))")
+    print(f"Árbol BST:  {t_arbol:.8f} s (O(log n))")
+    print(f"\nResultados guardados exitosamente en {csv_path}")
 
 if __name__ == "__main__":
-    main()
+    ejecutar_benchmark()

@@ -1,0 +1,4 @@
+Estrategia,Tiempo_Promedio_Segundos,Complejidad_Teorica
+Secuencial,0.00000723,O(n)
+Binaria,0.00000399,O(log n)
+Arbol_BST,0.00001230,O(log n)

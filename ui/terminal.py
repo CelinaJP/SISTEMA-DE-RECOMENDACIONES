@@ -1,10 +1,10 @@
-
 import os
+from estructuras.arbol_binario import ArbolPorArtista, ArbolPorTitulo
 from servicios.gestor_catalogo import Catalogo as CatalogoDeCancion
-from estructuras.arbol_binario import ArbolPorTitulo, ArbolPorArtista
- 
- 
+
+
 class MenuInicio:
+
     def __init__(
         self,
         catalogo: CatalogoDeCancion,
@@ -12,13 +12,12 @@ class MenuInicio:
         arbol_artistas: ArbolPorArtista = None,
     ):
         self.catalogo = catalogo
-        
         self.arbol_titulos = arbol_titulos
         self.arbol_artistas = arbol_artistas
- 
+
     def limpiar_pantalla(self):
         os.system("cls" if os.name == "nt" else "clear")
- 
+
     def mostrar_menu_principal(self):
         print("\n" + "=" * 60)
         print("    EL BOT DE TU CORAZÓN — MIRANDA! (Recomendador Pop)")
@@ -33,63 +32,86 @@ class MenuInicio:
         print(" 8. Obtener Versión Clásica")
         print(" 0. Salir")
         print("=" * 60)
- 
+
     def _formatear_cancion(self, cancion):
         titulo = getattr(cancion, "titulo", "Sin título")
-        artista = getattr(cancion, "artista_principal", getattr(cancion, "artista", "Miranda!"))
+        artista = getattr(
+            cancion,
+            "artista_principal",
+            getattr(cancion, "artista", "Miranda!"),
+        )
         colabs = getattr(cancion, "colaboradores", [])
         colabs_str = f" (feat. {', '.join(colabs)})" if colabs else ""
         era = getattr(cancion, "era", getattr(cancion, "anio", "N/A"))
         mood = getattr(cancion, "mood", getattr(cancion, "genero", "N/A"))
         cid = getattr(cancion, "id", getattr(cancion, "id_cancion", "?"))
- 
+
         return f"🎵 [{cid}] {titulo} - {artista}{colabs_str} | Era/Año: {era} | Mood/Género: {mood}"
- 
+
     def procesar_opcion(self, opcion: str) -> bool:
         # 1. LISTAR / TOP 10
         if opcion == "1":
             self.limpiar_pantalla()
             print("--- TOP 10 CANCIONES MÁS POPULARES ---\n")
-            
+
             todas = []
             if hasattr(self.catalogo, "listar"):
                 todas = self.catalogo.listar()
             elif hasattr(self.catalogo, "canciones"):
                 todas = self.catalogo.canciones
- 
+
             if todas:
                 top_10 = sorted(
-                    todas, 
-                    key=lambda c: getattr(c, "popularidad", c.get("popularidad", 0) if isinstance(c, dict) else 0), 
-                    reverse=True
+                    todas,
+                    key=lambda c: getattr(
+                        c,
+                        "popularidad",
+                        c.get("popularidad", 0)
+                        if isinstance(c, dict)
+                        else 0,
+                    ),
+                    reverse=True,
                 )[:10]
- 
+
                 for i, c in enumerate(top_10, 1):
-                    pop = getattr(c, "popularidad", c.get("popularidad", "N/A") if isinstance(c, dict) else "N/A")
-                    print(f"{i}. {self._formatear_cancion(c)} | Popularidad: {pop}")
+                    pop = getattr(
+                        c,
+                        "popularidad",
+                        c.get("popularidad", "N/A")
+                        if isinstance(c, dict)
+                        else "N/A",
+                    )
+                    print(
+                        f"{i}. {self._formatear_cancion(c)} | Popularidad: {pop}"
+                    )
             else:
                 print("No hay canciones registradas en el catálogo.")
- 
-        # 2. BUSCAR CANCIÓN (Issue 4: ahora usa el ABB por título y por artista)
+
+            input("\nPresione ENTER para continuar...")
+            return True
+
+        # 2. BUSCAR CANCIÓN (por ABB)
         elif opcion == "2":
             self.limpiar_pantalla()
             print("--- BUSCAR CANCIÓN (título o artista) ---")
-            criterio = input("Ingrese el título o artista exacto a buscar: ").strip()
- 
+            criterio = input(
+                "Ingrese el título o artista exacto a buscar: "
+            ).strip()
+
             if not criterio:
                 print("Búsqueda cancelada: el texto no puede estar vacío.")
                 input("\nPresione ENTER para continuar...")
                 return True
- 
+
             resultados = []
- 
-            if self.arbol_titulos is not None and self.arbol_artistas is not None:
+
+            if (
+                self.arbol_titulos is not None
+                and self.arbol_artistas is not None
+            ):
                 por_titulo = self.arbol_titulos.buscar_por_titulo(criterio)
                 por_artista = self.arbol_artistas.buscar_por_artista(criterio)
- 
-                # Unificar resultados sin duplicar (una canción puede
-                # aparecer en ambos árboles, ej. si el título coincide con
-                # un nombre de artista).
+
                 ids_vistos = set()
                 for c in por_titulo + por_artista:
                     cid = getattr(c, "id", None)
@@ -97,93 +119,143 @@ class MenuInicio:
                         ids_vistos.add(cid)
                         resultados.append(c)
             else:
-                # Fallback por si el árbol no fue inicializado (no debería
-                # pasar si se arma el menú desde main.py).
-                resultados = self.catalogo.buscar(criterio) if hasattr(self.catalogo, "buscar") else []
- 
+                resultados = (
+                    self.catalogo.buscar(criterio)
+                    if hasattr(self.catalogo, "buscar")
+                    else []
+                )
+
             if resultados:
                 print(f"\nSe encontraron {len(resultados)} canción(es):\n")
                 for c in resultados:
                     print(self._formatear_cancion(c))
             else:
                 print(f"\nNo se encontraron canciones para '{criterio}'.")
-                print("(Búsqueda exacta por título/artista — revisá mayúsculas o probá la opción 3 para búsqueda parcial).")
- 
+                print(
+                    "(Búsqueda exacta por título/artista — revisá mayúsculas o probá la opción 3)."
+                )
 
+            input("\nPresione ENTER para continuar...")
+            return True
+
+        # 3. FILTRAR CANCIONES
         elif opcion == "3":
             self.limpiar_pantalla()
             print("--- FILTRAR CANCIONES ---")
-            valor = input("Ingrese criterio (ej. Electropop, Clasica, Desamor, 2025, Hotel Miranda): ").strip()
+            valor = input(
+                "Ingrese criterio (ej. Electropop, Clasica, Desamor, 2025): "
+            ).strip()
+
             if valor:
                 resultados = []
-                
+
                 def normalizar(texto):
                     if not texto:
                         return ""
                     m = str(texto).lower()
-                    for orig, reemp in [("á","a"), ("é","e"), ("í","i"), ("ó","o"), ("ú","u")]:
+                    for orig, reemp in [
+                        ("á", "a"),
+                        ("é", "e"),
+                        ("í", "i"),
+                        ("ó", "o"),
+                        ("ú", "u"),
+                    ]:
                         m = m.replace(orig, reemp)
                     return m
- 
+
                 busqueda = normalizar(valor)
- 
+
                 todas = []
                 if hasattr(self.catalogo, "listar"):
                     todas = self.catalogo.listar()
                 elif hasattr(self.catalogo, "canciones"):
                     todas = self.catalogo.canciones
- 
+
                 for c in todas:
                     valores = []
                     if isinstance(c, dict):
                         valores = list(c.values())
                     elif hasattr(c, "__dict__"):
                         valores = list(c.__dict__.values())
- 
+
                     texto_cancion = []
                     for v in valores:
                         if isinstance(v, list):
                             texto_cancion.append(" ".join(map(str, v)))
                         elif v is not None:
                             texto_cancion.append(str(v))
-                    
+
                     cadena_buscar = normalizar(" ".join(texto_cancion))
- 
+
                     if busqueda in cadena_buscar:
                         resultados.append(c)
- 
+
                 if resultados:
-                    print(f"\nSe encontraron {len(resultados)} canción(es):\n")
+                    print(
+                        f"\nSe encontraron {len(resultados)} canción(es):\n"
+                    )
                     for c in resultados:
                         print(self._formatear_cancion(c))
                 else:
                     print(f"\nNo se encontraron canciones para '{valor}'.")
             else:
                 print("Filtro cancelado: el texto no puede estar vacío.")
- 
 
+            input("\nPresione ENTER para continuar...")
+            return True
+
+        # 5. EXPLORAR COLABORADOR
         elif opcion == "5":
             self.limpiar_pantalla()
-            print("--- EXPLORAR COLABORADOR ---")
-            colaborador = input("Ingrese el nombre del colaborador/artista: ").strip()
- 
+            print("--- EXPLORAR COLABORADOR (prueba) ---")
+            colaborador = input(
+                "Ingrese el nombre del colaborador/artista: "
+            ).strip()
+
             if not colaborador:
                 print("Búsqueda cancelada: el nombre no puede estar vacío.")
                 input("\nPresione ENTER para continuar...")
                 return True
- 
+
+            resultados = []
+
+            # 1. Búsqueda en el ABB
             if self.arbol_artistas is not None:
                 resultados = self.arbol_artistas.buscar_por_artista(colaborador)
-            else:
-                resultados = []
- 
+
+            # 2. Resguardo en catálogo
+            if not resultados and hasattr(self.catalogo, "listar"):
+                todas = self.catalogo.listar()
+                busqueda = colaborador.lower()
+                for c in todas:
+                    colabs = getattr(c, "colaboradores", [])
+                    art_principal = getattr(
+                        c, "artista_principal", getattr(c, "artista", "")
+                    )
+
+                    es_colab = any(
+                        busqueda in str(col).lower() for col in colabs
+                    )
+                    es_principal = busqueda in str(art_principal).lower()
+
+                    if es_colab or es_principal:
+                        resultados.append(c)
+
             if resultados:
-                print(f"\nCanciones con '{colaborador}': {len(resultados)}\n")
+                print(
+                    f"\nCanciones encontradas para '{colaborador}': {len(resultados)}\n"
+                )
                 for c in resultados:
                     print(self._formatear_cancion(c))
             else:
-                print(f"\nNo se encontraron canciones con '{colaborador}'.")
- 
+                print(
+                    f"\nNo se encontraron canciones relacionadas con '{colaborador}'."
+                )
+
+            input("\nPresione ENTER para continuar...")
+            return True
+
+        # OPCIONES EN DESARROLLO (4, 6, 7, 8)
         elif opcion in ["4", "6", "7", "8"]:
             self.limpiar_pantalla()
             mapeo_metodos = {
@@ -194,7 +266,7 @@ class MenuInicio:
             }
             metodo_nombre, titulo = mapeo_metodos[opcion]
             print(f"--- {titulo.upper()} ---")
- 
+
             if hasattr(self.catalogo, metodo_nombre):
                 metodo = getattr(self.catalogo, metodo_nombre)
                 try:
@@ -208,17 +280,48 @@ class MenuInicio:
                     else:
                         print("Sin datos para mostrar.")
                 except Exception as e:
-                    print(f"La función '{metodo_nombre}' requiere argumentos adicionales. Detalle: {e}")
+                    print(
+                        f"La función '{metodo_nombre}' requiere argumentos adicionales. Detalle: {e}"
+                    )
             else:
-                print(f"[En desarrollo] Esta opción usará '{metodo_nombre}()' cuando lo agreguen al catálogo.")
- 
+                print(
+                    f"[En desarrollo] Esta opción usará '{metodo_nombre}()' cuando lo agreguen al catálogo."
+                )
+
+            input("\nPresione ENTER para continuar...")
+            return True
+
         elif opcion == "0":
             print("\n¡Gracias por usar POPBOT!")
             return False
- 
+
         else:
             print("\nOpción inválida. Intente de nuevo.")
- 
-        input("\nPresione ENTER para continuar...")
-        return True
+            input("\nPresione ENTER para continuar...")
+            return True
+
+
+def main():
+    catalogo = CatalogoDeCancion()
+    if hasattr(catalogo, "cargar_desde_json"):
+        catalogo.cargar_desde_json("datos/miranda_canciones.json")
+
+    arbol_titulos = ArbolPorTitulo()
+    arbol_artistas = ArbolPorArtista()
+
+    if hasattr(arbol_titulos, "cargar_desde_catalogo"):
+        arbol_titulos.cargar_desde_catalogo(catalogo)
+        arbol_artistas.cargar_desde_catalogo(catalogo)
+
+    menu = MenuInicio(catalogo, arbol_titulos, arbol_artistas)
+
+    ejecutando = True
+    while ejecutando:
+        menu.mostrar_menu_principal()
+        opcion = input("Seleccione una opción: ").strip()
+        ejecutando = menu.procesar_opcion(opcion)
+
+
+if __name__ == "__main__":
+    main()
  
