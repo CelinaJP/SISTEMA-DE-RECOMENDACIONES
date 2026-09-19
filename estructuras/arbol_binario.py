@@ -257,6 +257,30 @@ class ArbolPorArtista(ArbolBinarioBusqueda):
 
     def buscar_por_artista(self, artista: str) -> List[Cancion]:
         return self.buscar(artista)
+
+class ArbolBST(ArbolBinarioBusqueda):
+
+    def insertar(self, dato, clave=None):
+        if callable(clave):
+            valor_clave = clave(dato)
+        else:
+            valor_clave = str(dato)
+        super().insertar(valor_clave, dato)
+
+    def buscar(self, valor, clave=None):
+        canciones = super().buscar(valor)
+        return canciones[0] if canciones else None
+
+    def altura(self) -> int:
+        return self._altura_recursiva(self.raiz)
+
+    def _altura_recursiva(self, nodo) -> int:
+        if nodo is None:
+            return 0
+        return 1 + max(
+            self._altura_recursiva(nodo.izquierda),
+            self._altura_recursiva(nodo.derecha),
+        )
     
 if __name__ == "__main__":
     arbol_titulos = ArbolPorTitulo()
