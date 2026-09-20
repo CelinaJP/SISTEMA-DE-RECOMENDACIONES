@@ -23,9 +23,11 @@ El uso del árbol binario de búsqueda (BST) optimiza el acceso al catálogo res
 ## 4. Comparación de tiempos
 En la tabla siguiente, los tiempos son **reales**, sacados con nuestro script `benchmarks/comparacion_busqueda.py` (los resultados se exportan a `benchmarks/resultados_comparacion.csv`).
 
-| Métrica / Estrategia | Secuencial (ms) | Binaria (ms) | Árbol BST (ms) |
-|---|---:|---:|---:|
-| Tiempo de búsqueda | 0.00325 | 0.00197 | 0.00464 |
+| $N$ | Secuencial (ms) | Binaria (ms) | Árbol BST (ms) |
+|---:|---:|---:|---:|
+| 1.000 | 0,0700 | 0,0019 | 0,0072 |
+| 10.000 | 0,5698 | 0,0025 | 0,0092 |
+| 100.000 | 6,0967 | 0,0032 | 0,0097 |
 
 ## 5. Análisis de complejidad
 - **Búsqueda secuencial:** O(n). Recorre toda la lista en el peor caso.
@@ -35,7 +37,9 @@ En la tabla siguiente, los tiempos son **reales**, sacados con nuestro script `b
 - **Recorridos (inorder, preorder, postorder):** O(n), porque visitan cada nodo 1 vez.
 
 ## 6. Conclusión
-Si bien nuestro catálogo real de canciones de Miranda! es más acotado, al simular la prueba con hasta 100.000 elementos observamos que la búsqueda secuencial escala linealmente tardando 7.84 ms, mientras que el Árbol BST mantiene un rendimiento de 0.0089 ms. Por lo tanto, nos quedamos con el árbol BST porque resulta óptimo a medida que el catálogo crece; el costo de construir la estructura se paga una sola vez al cargar la aplicación y luego las búsquedas son inmediatas.
+Al simular la prueba con hasta N=100.000 elementos, la búsqueda secuencial escala linealmente (llegando a ~6 ms), mientras que la búsqueda binaria y el Árbol BST se mantienen prácticamente constantes, ambos con complejidad O(log n). Es interesante notar que la binaria resultó levemente más rápida que el árbol: al trabajar sobre un array contiguo en memoria, acceder al elemento del medio es más económico que recorrer punteros entre nodos. Sin embargo, nos quedamos con el árbol BST como estructura del proyecto porque, a diferencia de la búsqueda binaria (que exige una lista ordenada, costosa de mantener ante cada inserción), el árbol permite insertar nuevas canciones dinámicamente en O(log n) sin reordenar toda la estructura.
 
 ## 7. Errores o dudas que tuvimos
 Inicialmente teníamos duplicada la llamada a la interfaz en el punto de entrada, lo que impedía que se pasaran las instancias del árbol al menú. Lo resolvimos desacoplando la terminal e inyectando las estructuras directamente.
+
+También detectamos que nuestra primera versión del script de benchmark medía una sola vez sobre el catálogo real (~120 canciones), lo cual no alcanza para mostrar la ventaja del árbol frente a la búsqueda secuencial. Lo corregimos generando datasets sintéticos a tres escalas distintas (N=1.000/10.000/100.000).
