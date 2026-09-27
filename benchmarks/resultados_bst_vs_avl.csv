@@ -1,0 +1,9 @@
+caso,N,altura_bst,altura_avl,altura_ideal_log2n,comparaciones_bst,comparaciones_avl,tiempo_bst_ms,tiempo_avl_ms,avl_balanceado
+CASO 1 — PEOR CASO: títulos insertados YA ORDENADOS alfabéticamente,10,10,4,4,10,4,0.01343,0.00709,True
+CASO 1 — PEOR CASO: títulos insertados YA ORDENADOS alfabéticamente,100,100,7,7,100,7,0.07221,0.00494,True
+CASO 1 — PEOR CASO: títulos insertados YA ORDENADOS alfabéticamente,1000,CRASH,10,10,N/A,10,N/A,0.00688,True
+CASO 1 — PEOR CASO: títulos insertados YA ORDENADOS alfabéticamente,10000,CRASH,14,14,N/A,14,N/A,0.01395,True
+CASO 2 — CASO NORMAL: títulos insertados en orden ALEATORIO,10,5,4,4,5,3,0.00743,0.00334,True
+CASO 2 — CASO NORMAL: títulos insertados en orden ALEATORIO,100,11,8,7,9,7,0.00638,0.00534,True
+CASO 2 — CASO NORMAL: títulos insertados en orden ALEATORIO,1000,21,12,10,16,10,0.01317,0.00731,True
+CASO 2 — CASO NORMAL: títulos insertados en orden ALEATORIO,10000,32,16,14,18,12,0.01269,0.00868,True
