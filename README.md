@@ -18,6 +18,7 @@ Iara Stefania Santarella
 - [Usuario Objetivo](#3-usuario-objetivo)
 - [Funcionalidades Requeridas](#4-funcionalidades-iniciales)
 - [Búsqueda por Título o Artista (Árbol Binario de Búsqueda)](#búsqueda-por-título-o-artista-árbol-binario-de-búsqueda)
+- [Balanceo Automático (Árbol AVL)](#balanceo-automático-árbol-avl)
 - [Estructura del Repositorio](#estructura-del-repositorio)
 - [Instalación y Ejecución](#instalación-y-ejecución)
 - [Ejemplo de Uso](#ejemplo-de-uso)
@@ -34,7 +35,7 @@ Iara Stefania Santarella
 * **Justificación:** El catálogo de Miranda! brinda un conjunto heterogéneo y rico de datos ideales para aplicar y justificar el uso de estructuras de datos fundamentales:
   * **Grafos:** Mapeo de la red de colaboraciones cross-género (*Lali, CA7RIEL, María Becerra, FMK, Emilia*).
   * **Diccionarios / Tablas Hash:** Búsqueda e interconexión rápida $O(1)$ entre canciones originales y sus re-versiones.
-  * **Árboles / Heaps:** Ordenamiento eficiente para la extracción dinámica de los Tops por popularidad, y búsqueda de canciones por título/artista en tiempo logarítmico mediante un Árbol Binario de Búsqueda (ver [sección dedicada](#búsqueda-por-título-o-artista-árbol-binario-de-búsqueda)).
+  * **Árboles / Heaps:** Ordenamiento eficiente para la extracción dinámica de los Tops por popularidad, y búsqueda de canciones por título/artista en tiempo logarítmico mediante un Árbol Binario de Búsqueda, con una variante auto-balanceada (AVL) que garantiza ese rendimiento incluso en el peor caso (ver [Búsqueda por Título o Artista](#búsqueda-por-título-o-artista-árbol-binario-de-búsqueda) y [Balanceo Automático](#balanceo-automático-árbol-avl)).
   * **Listas y Algoritmos de Búsqueda:** Generación de playlists ajustadas a duraciones acumuladas exactas.
 
 ---
@@ -61,6 +62,7 @@ La brecha generacional y de formato entre el catálogo clásico de un artista ex
 | **RF06** | **Comparador de Versiones** | Muestra un frente a frente comparando métricas (duración, popularidad, participantes) entre una versión clásica y su re-versión moderna. |
 | **RF07** | **Puente Temporal** | Detecta una canción moderna seleccionada y sugiere automáticamente reproducir la versión clásica original (o viceversa). |
 | **RF08** | **Búsqueda por Título o Artista** | Busca una canción puntual por título exacto, o todas las canciones de un artista/colaborador, usando dos Árboles Binarios de Búsqueda (`ArbolPorTitulo` y `ArbolPorArtista`). Ver detalle abajo. |
+| **RF09** | **Balanceo Automático del Árbol (AVL)** | Garantiza que la búsqueda por título/artista se mantenga en $O(\log n)$ incluso en el peor caso (datos insertados ya ordenados), mediante rotaciones automáticas. Ver detalle abajo. |
 
 ---
 
@@ -122,38 +124,90 @@ python3 -m unittest discover -s test -v
 
 ---
 
+## Balanceo Automático (Árbol AVL)
+
+El Árbol Binario de Búsqueda del TP3 garantiza $O(\log n)$ solo si está razonablemente
+balanceado. En el **peor caso** (títulos insertados ya ordenados alfabéticamente), el
+árbol degenera en una lista enlazada, con complejidad $O(n)$ — y con catálogos grandes,
+directamente deja de funcionar: la inserción recursiva llega a **crashear** (`RecursionError`).
+
+A partir de TP4, se incorporó un **Árbol AVL**, que se auto-balancea tras cada inserción
+mediante rotaciones, garantizando $O(\log n)$ en el peor caso, sin importar el orden en
+que lleguen los datos.
+
+### Resultados reales (peor caso: títulos ya ordenados)
+
+| $N$ | Altura BST común | Altura AVL | Altura ideal $\log_2(N)$ |
+|---:|---:|---:|---:|
+| 10 | 10 | 4 | 4 |
+| 100 | 100 | 7 | 7 |
+| 1.000 | **CRASH** (RecursionError) | 10 | 10 |
+| 10.000 | **CRASH** (RecursionError) | 14 | 14 |
+
+Con orden de inserción **aleatorio** (más parecido al caso real), la diferencia es
+mucho menor — el problema de desbalance es específico de datos ya ordenados, no una
+falla general del BST. El análisis completo, con las 4 rotaciones explicadas y la
+comparación completa, está en
+[`docs/08-analisis-tp4.md`](docs/08-analisis-tp4.md).
+
+### Estructura interna
+
+- `estructuras/arbol_avl.py`: `NodoAVL`, `ArbolAVL` (con las 4 rotaciones: simple
+  izquierda, simple derecha, doble izquierda-derecha, doble derecha-izquierda) y la
+  especialización `ArbolAVLPorTitulo`. Mantiene la misma interfaz pública que el ABB
+  del TP3 (`insertar`, `buscar`, `inorder`, `preorder`, `postorder`), más
+  `altura()` y `esta_balanceado()`.
+
+### Scripts y tests
+
+```bash
+python algoritmos/generar_casos_desbalance.py   # genera los casos de desbalance
+python benchmarks/comparacion_bst_avl.py        # benchmark BST común vs. AVL
+python3 -m unittest discover -s test -v         # corre todos los tests (BST + AVL)
+```
+
+---
+
 ## Estructura del Repositorio
 El proyecto está organizado de manera modular respetando las pautas de arquitectura del curso:
 
 ```text
 SISTEMA-DE-RECOMENDACIONES/
-├── algoritmos/                 # Algoritmos de búsqueda, ordenamiento y grafos
-├── benchmarks/                 # Scripts de comparación de rendimiento (secuencial vs ABB)
-│   └── comparacion_busqueda.py
+├── algoritmos/                       # Scripts de demostración y generación de casos de prueba
+│   ├── probar_bst.py                 # Demo del BST: inserción, búsqueda y recorridos (TP3)
+│   └── generar_casos_desbalance.py   # Genera casos de desbalance BST vs. AVL (TP4)
+├── benchmarks/                       # Scripts de comparación de rendimiento
+│   ├── comparacion_busqueda.py       # Secuencial vs. binaria vs. ABB (TP2/TP3)
+│   ├── resultados_comparacion.csv
+│   ├── comparacion_bst_avl.py        # BST común vs. AVL (TP4)
+│   └── resultados_bst_vs_avl.csv
 ├── datos/
-│   └── miranda_canciones.json  # Catálogo estructurado en JSON
-├── docs/                       # Documentación y propuestas del TP
+│   └── miranda_canciones.json        # Catálogo estructurado en JSON
+├── docs/                             # Documentación y propuestas del TP
 │   ├── 01-requerimientos.md
-│   ├── 02-documentacion.md     # Incluye el análisis de complejidad (TP2) y su justificación
+│   ├── 02-documentacion.md           # Análisis de complejidad (TP2) y su justificación
 │   ├── 03-interfaz-terminal.md
 │   ├── 04-diagrama-clases.md
-│   └── 05-gestion-del-proyecto.md
-├── estructuras/                # Implementación de estructuras de datos propias
-│   └── arbol_binario.py        # ABB genérico + ArbolPorTitulo / ArbolPorArtista
-├── modelos/                    # Entidades principales
+│   ├── 05-gestion-del-proyecto.md
+│   └── 08-analisis-tp4.md            # Análisis técnico: BST vs. AVL, rotaciones, conclusión
+├── estructuras/                      # Implementación de estructuras de datos propias
+│   ├── arbol_binario.py              # ABB genérico + ArbolPorTitulo / ArbolPorArtista (TP3)
+│   └── arbol_avl.py                  # AVL genérico + ArbolAVLPorTitulo, con rotaciones (TP4)
+├── modelos/                          # Entidades principales
 │   ├── __init__.py
 │   ├── cancion.py
 │   ├── genero.py
 │   └── usuario.py
-├── servicios/                  # Lógica de negocio y recomendaciones
+├── servicios/                        # Lógica de negocio y recomendaciones
 │   └── gestor_catalogo.py
-├── test/                       # Pruebas unitarias
-│   └── test_arbol_binario.py
-├── ui/                         # Interfaz gráfica o de consola
+├── test/                             # Pruebas unitarias
+│   ├── test_arbol_binario.py         # 27 tests (TP3)
+│   └── test_arbol_avl.py             # 25 tests (TP4)
+├── ui/                                # Interfaz gráfica o de consola
 │   └── terminal.py
-├── .gitignore                  # Filtro de archivos no rastreados por Git
-├── main.py                     # Punto de entrada de la aplicación
-└── README.md                   # Documentación principal
+├── .gitignore                        # Filtro de archivos no rastreados por Git
+├── main.py                           # Punto de entrada de la aplicación
+└── README.md                         # Documentación principal
 ```
 ---
 
@@ -162,7 +216,8 @@ TP0 COMPLETADO
 TP1 INCOMPLETO
 TP2 COMPLETADO — Análisis de complejidad y justificación de estrategia de búsqueda
 TP3 COMPLETADO — Árbol Binario de Búsqueda integrado (título/artista), tests y benchmark
-
+TP4 COMPLETADO — Árbol AVL con rotaciones, comparación BST vs. AVL y análisis de balance
+TP5 INCOMPLETO 
 ---
 
 ## Instalación y ejecución
@@ -179,13 +234,13 @@ git clone https://github.com/CelinaJP/SISTEMA-DE-RECOMENDACIONES.git
 cd SISTEMA-DE-RECOMENDACIONES
 
 ### 3. Crear y activar entorno virtual (opcional)
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 
 ### 4. Instalar dependencias
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 ### 5. Ejecutar la aplicación
-python main.py
+python3 main.py
 
 ##
