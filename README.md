@@ -166,6 +166,25 @@ python benchmarks/comparacion_bst_avl.py        # benchmark BST común vs. AVL
 python3 -m unittest discover -s test -v         # corre todos los tests (BST + AVL)
 ```
 
+## Jerarquía del Catálogo (Árbol General)
+
+A partir del TP5, se incorporó un **Árbol General (`ArbolGeneral`)** n-ario para estructurar el catálogo de Miranda! en una jerarquía de 3 niveles:
+
+- **Estructura:** `Era (Clásica / Moderna)` ➔ `Género (Electropop, Synthpop Retro, etc.)` ➔ `Canciones (Nodos hoja)`.
+- **Justificación:** Se eligió el orden **Era → Género** porque la discografía de Miranda! se divide de manera orgánica y conceptual en dos grandes etapas (*Era Clásica* $<2010$ y *Era Moderna / Hotel Miranda!* $\ge2020$). Agrupar primero por era facilita la separación conceptual de sus obras originales frente a sus re-versiones modernas y optimiza las consultas principales del bot.
+
+### Estructura interna y archivos
+
+- `estructuras/arbol_general.py`: contiene `NodoGeneral` y `ArbolGeneral`. Implementa atributos privados y `@property` siguiendo el estándar del proyecto, junto con los métodos para agregar nodos, insertar canciones y cargar dinámicamente desde el catálogo JSON (`cargar_desde_catalogo`).
+- `docs/09-analisis-tp5.md`: documentación técnica detallada y resultados de la verificación manual de ramas.
+
+### Verificación y ejecución
+
+Para probar la carga del catálogo completo y recorrer las ramas de la jerarquía:
+
+```bash
+python3 estructuras/arbol_general.py
+
 ---
 
 ## Estructura del Repositorio
@@ -189,10 +208,12 @@ SISTEMA-DE-RECOMENDACIONES/
 │   ├── 03-interfaz-terminal.md
 │   ├── 04-diagrama-clases.md
 │   ├── 05-gestion-del-proyecto.md
-│   └── 08-analisis-tp4.md            # Análisis técnico: BST vs. AVL, rotaciones, conclusión
+│   ├── 08-analisis-tp4.md            # Análisis técnico: BST vs. AVL, rotaciones, conclusión
+│   └── 09-analisis-tp5.md            # Análisis técnico: Árbol General y Jerarquía (TP5)
 ├── estructuras/                      # Implementación de estructuras de datos propias
 │   ├── arbol_binario.py              # ABB genérico + ArbolPorTitulo / ArbolPorArtista (TP3)
-│   └── arbol_avl.py                  # AVL genérico + ArbolAVLPorTitulo, con rotaciones (TP4)
+│   ├── arbol_avl.py                  # AVL genérico + ArbolAVLPorTitulo, con rotaciones (TP4)
+│   └── arbol_general.py              # Árbol General n-ario + NodoGeneral (TP5)
 ├── modelos/                          # Entidades principales
 │   ├── __init__.py
 │   ├── cancion.py
@@ -207,8 +228,8 @@ SISTEMA-DE-RECOMENDACIONES/
 │   └── terminal.py
 ├── .gitignore                        # Filtro de archivos no rastreados por Git
 ├── main.py                           # Punto de entrada de la aplicación
-└── README.md                         # Documentación principal
-```
+└── README.md    
+
 ---
 
 ## Estado
