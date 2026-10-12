@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import List, Optional, Deque
+from collections import deque
 import os
 import sys
 
@@ -88,19 +89,16 @@ class ArbolGeneral:
 
     def agregar_cancion(self, era: str, genero: str, cancion: Cancion) -> None:
         """Inserta una canción en la hoja correspondiente, creando las eras y géneros si no existen."""
-        # 1. Asegurar era
         nodo_era = self._raiz.buscar_hijo(era)
         if nodo_era is None:
             nodo_era = NodoGeneral(era)
             self._raiz.agregar_hijo(nodo_era)
 
-        # 2. Asegurar género bajo la era
         nodo_genero = nodo_era.buscar_hijo(genero)
         if nodo_genero is None:
             nodo_genero = NodoGeneral(genero)
             nodo_era.agregar_hijo(nodo_genero)
 
-        # 3. Agregar canción a la hoja de género
         nodo_genero.agregar_cancion(cancion)
 
     def cargar_desde_catalogo(self, catalogo) -> None:
@@ -111,6 +109,70 @@ class ArbolGeneral:
             genero = getattr(cancion, "_genero", "Pop")
             self.agregar_cancion(era, genero, cancion)
 
+    def recorrido_dfs(self) -> List[str]:
+        """Recorrido en profundidad (DFS) que devuelve la ruta completa de cada nodo."""
+        rutas = []
+        if self._raiz is None:
+            return rutas
+
+        def _dfs_recursivo(nodo: NodoGeneral, ruta_actual: str):
+            for hijo in nodo.hijos:
+                nueva_ruta = f"{ruta_actual} > {hijo.etiqueta}"
+                rutas.append(nueva_ruta)
+                _dfs_recursivo(hijo, nueva_ruta)
+                
+            for cancion in nodo.canciones:
+                rutas.append(f"{ruta_actual} > {cancion.titulo}")
+
+        _dfs_recursivo(self._raiz, self._raiz.etiqueta)
+        return rutas
+
+    def recorrido_bfs(self) -> List[str]:
+        """Recorrido en amplitud (BFS) nivel por nivel."""
+        visitados = []
+        if self._raiz is None:
+            return visitados
+
+        cola: Deque[NodoGeneral] = deque([self._raiz])
+        while cola:
+            nodo = cola.popleft()
+            visitados.append(nodo.etiqueta)
+            for hijo in nodo.hijos:
+                cola.append(hijo)
+                
+        return visitados
+
+    def buscar_categoria(self, nombre: str) -> List[Cancion]:
+        """Busca un nodo por nombre en cualquier nivel y devuelve todas las canciones que cuelgan de él."""
+        if self._raiz is None or not nombre:
+            return []
+
+        nombre_norm = _normalizar(nombre)
+        nodo_encontrado = self._buscar_nodo_recursivo(self._raiz, nombre_norm)
+        
+        if nodo_encontrado is None:
+            return []
+
+        canciones_resultado = []
+        cola: Deque[NodoGeneral] = deque([nodo_encontrado])
+        while cola:
+            actual = cola.popleft()
+            if actual.canciones:
+                canciones_resultado.extend(actual.canciones)
+            for hijo in actual.hijos:
+                cola.append(hijo)
+                
+        return canciones_resultado
+
+    def _buscar_nodo_recursivo(self, nodo: NodoGeneral, nombre_norm: str) -> Optional[NodoGeneral]:
+        if _normalizar(nodo.etiqueta) == nombre_norm:
+            return nodo
+        for hijo in nodo.hijos:
+            res = self._buscar_nodo_recursivo(hijo, nombre_norm)
+            if res is not None:
+                return res
+        return None
+
     def imprimir(self) -> None:
         if self._raiz is None:
             print("Árbol vacío.")
@@ -120,30 +182,4 @@ class ArbolGeneral:
             print(f"Era: {era.etiqueta}")
             for genero in era.hijos:
                 print(f"  Género: {genero.etiqueta} ({len(genero.canciones)} canciones)")
-                for c in genero.canciones[:3]:  # Muestra las primeras 3 de ejemplo
-                    print(f"      🎵 {c.titulo} ({getattr(c, '_anio', 0)})")
-
-
-if __name__ == "__main__":
-    from servicios.gestor_catalogo import Catalogo
-    
-    # 1. Cargamos el catálogo de 120 canciones reales
-    cat = Catalogo()
-    cat.cargar_desde_json("datos/miranda_canciones.json")
-
-    # 2. Construimos e imprimimos el Árbol General
-    arbol = ArbolGeneral("CatalogoMirandaGeneral")
-    arbol.cargar_desde_catalogo(cat)
-    arbol.imprimir()
-
-    # 3. Recorrido manual de 2 ramas para verificar la jerarquía (Criterio de Aceptación):
-    print("\n" + "=" * 60)
-    print("VERIFICACIÓN MANUAL DE RAMAS (Era -> Género -> Canciones)")
-    print("=" * 60)
-    
-    for nodo_era in arbol.raiz.hijos[:2]:  # Recorremos las 2 eras
-        print(f"\n📁 [Nivel 1] Era: {nodo_era.etiqueta}")
-        for nodo_genero in nodo_era.hijos[:2]:  # Recorremos los primeros 2 géneros de cada era
-            print(f"   📂 [Nivel 2] Género: {nodo_genero.etiqueta} ({len(nodo_genero.canciones)} canciones)")
-            for cancion in nodo_genero.canciones[:2]:  # Mostramos 2 canciones del nivel hoja
-                print(f"      🎵 [Nivel 3] {cancion.titulo} - Era: {getattr(cancion, '_era', '')} | Género: {getattr(cancion, '_genero', '')}")
+                
