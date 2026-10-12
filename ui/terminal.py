@@ -10,10 +10,12 @@ class MenuInicio:
         catalogo: CatalogoDeCancion,
         arbol_titulos: ArbolPorTitulo = None,
         arbol_artistas: ArbolPorArtista = None,
+        arbol_general = None,
     ):
         self.catalogo = catalogo
         self.arbol_titulos = arbol_titulos
         self.arbol_artistas = arbol_artistas
+        self.arbol_general = arbol_general
 
     def limpiar_pantalla(self):
         os.system("cls" if os.name == "nt" else "clear")
@@ -30,6 +32,7 @@ class MenuInicio:
         print(" 6. Comparar Versiones")
         print(" 7. Puente Temporal")
         print(" 8. Obtener Versión Clásica")
+        print(" 9. Explorar categorías (Era -> Género -> Canciones)")
         print(" 0. Salir")
         print("=" * 60)
 
@@ -291,29 +294,74 @@ class MenuInicio:
             input("\nPresione ENTER para continuar...")
             return True
 
+        # 9. EXPLORAR CATEGORÍAS (Árbol General)
+        elif opcion == "9":
+            self.limpiar_pantalla()
+            print("--- EXPLORAR CATEGORÍAS (JERARQUÍA DEL CATÁLOGO) ---\n")
+
+            if self.arbol_general is None or self.arbol_general.raiz is None:
+                print("El árbol general no está inicializado.")
+            else:
+                eras = self.arbol_general.raiz.hijos
+                if not eras:
+                    print("No hay eras registradas en el árbol.")
+                else:
+                    print("Eras disponibles:")
+                    for idx, era in enumerate(eras, 1):
+                        print(f"  {idx}. {era.etiqueta}")
+
+                    op_era = input("\nSeleccione el número de la Era a explorar (o Enter para volver): ").strip()
+                    if op_era.isdigit() and 1 <= int(op_era) <= len(eras):
+                        era_elegida = eras[int(op_era) - 1]
+                        self.limpiar_pantalla()
+                        print(f"--- ERA: {era_elegida.etiqueta} ---\n")
+                        
+                        generos = era_elegida.hijos
+                        if not generos:
+                            print("No hay géneros en esta era.")
+                        else:
+                            print("Géneros disponibles:")
+                            for g_idx, gen in enumerate(generos, 1):
+                                print(f"  {g_idx}. {gen.etiqueta} ({len(gen.canciones)} canciones)")
+
+                            op_gen = input("\nSeleccione el número del Género a explorar (o Enter para volver): ").strip()
+                            if op_gen.isdigit() and 1 <= int(op_gen) <= len(generos):
+                                gen_elegido = generos[int(op_gen) - 1]
+                                self.limpiar_pantalla()
+                                print(f"--- CANCIONES DE LA ERA '{era_elegida.etiqueta}' EN GÉNERO '{gen_elegido.etiqueta}' ---\n")
+                                for c in gen_elegido.canciones:
+                                    print(self._formatear_cancion(c))
+
+            input("\nPresione ENTER para continuar...")
+            return True
+
         elif opcion == "0":
             print("\n¡Gracias por usar POPBOT!")
             return False
 
         else:
             print("\nOpción inválida. Intente de nuevo.")
-            input("\nPresione ENTER para continuar...")
+            input("\nPresione ENTER for continuar...")
             return True
 
 
 def main():
+    from estructuras.arbol_general import ArbolGeneral
+    
     catalogo = CatalogoDeCancion()
     if hasattr(catalogo, "cargar_desde_json"):
         catalogo.cargar_desde_json("datos/miranda_canciones.json")
 
     arbol_titulos = ArbolPorTitulo()
     arbol_artistas = ArbolPorArtista()
+    arbol_general = ArbolGeneral("CatalogoMirandaGeneral")
 
     if hasattr(arbol_titulos, "cargar_desde_catalogo"):
         arbol_titulos.cargar_desde_catalogo(catalogo)
         arbol_artistas.cargar_desde_catalogo(catalogo)
+        arbol_general.cargar_desde_catalogo(catalogo)
 
-    menu = MenuInicio(catalogo, arbol_titulos, arbol_artistas)
+    menu = MenuInicio(catalogo, arbol_titulos, arbol_artistas, arbol_general)
 
     ejecutando = True
     while ejecutando:
@@ -324,4 +372,4 @@ def main():
 
 if __name__ == "__main__":
     main()
- 
+    
