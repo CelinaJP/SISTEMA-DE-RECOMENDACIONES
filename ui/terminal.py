@@ -52,47 +52,27 @@ class MenuInicio:
         return f"🎵 [{cid}] {titulo} - {artista}{colabs_str} | Era/Año: {era} | Mood/Género: {mood}"
 
     def procesar_opcion(self, opcion: str) -> bool:
-        # 1. LISTAR / TOP 10
+        # 1. LISTAR / TOP 10 (Usando Heap / Cola de Prioridad - Versión 4)
         if opcion == "1":
             self.limpiar_pantalla()
-            print("--- TOP 10 CANCIONES MÁS POPULARES ---\n")
+            print("--- TOP 10 CANCIONES MÁS POPULARES (Vía Cola de Prioridad / Heap) ---\n")
 
-            todas = []
-            if hasattr(self.catalogo, "listar"):
-                todas = self.catalogo.listar()
-            elif hasattr(self.catalogo, "canciones"):
-                todas = self.catalogo.canciones
+            from algoritmos.ranking import obtener_top_n
+            top_10 = obtener_top_n(self.catalogo, n=10)
 
-            if todas:
-                top_10 = sorted(
-                    todas,
-                    key=lambda c: getattr(
-                        c,
-                        "popularidad",
-                        c.get("popularidad", 0)
-                        if isinstance(c, dict)
-                        else 0,
-                    ),
-                    reverse=True,
-                )[:10]
-
+            if top_10:
                 for i, c in enumerate(top_10, 1):
-                    pop = getattr(
-                        c,
-                        "popularidad",
-                        c.get("popularidad", "N/A")
-                        if isinstance(c, dict)
-                        else "N/A",
-                    )
+                    from algoritmos.prioridad import obtener_prioridad
+                    pop = obtener_prioridad(c)
                     print(
-                        f"{i}. {self._formatear_cancion(c)} | Popularidad: {pop}"
+                        f"{i}. {self._formatear_cancion(c)} | Popularidad/Prioridad: {pop}"
                     )
             else:
                 print("No hay canciones registradas en el catálogo.")
 
             input("\nPresione ENTER para continuar...")
             return True
-
+        
         # 2. BUSCAR CANCIÓN (por ABB)
         elif opcion == "2":
             self.limpiar_pantalla()
