@@ -45,7 +45,7 @@ class GrafoColaboraciones:
             for colab in colaboradores:
                 self.agregar_arista(artista_principal, colab, titulo)
             
-            # Conectar a los colaboradores entre sí (si hay más de 1 en el mismo tema, ej: María Becerra y FMK)
+            # Conectar a los colaboradores entre sí (si hay más de 1 en el mismo tema)
             for i in range(len(colaboradores)):
                 for j in range(i + 1, len(colaboradores)):
                     self.agregar_arista(colaboradores[i], colaboradores[j], titulo)
@@ -86,6 +86,42 @@ class GrafoColaboraciones:
                         
         return resultados
 
+    def explorar_ecosistema_dfs(self, artista: str):
+        """
+        Algoritmo DFS (Búsqueda en Profundidad).
+        Explora la red sumergiéndose lo más profundo posible en las colaboraciones
+        antes de retroceder. Ideal para encontrar la "cadena de colaboraciones" más larga
+        o explorar el límite de un ecosistema musical (la componente conexa).
+        Retorna las ramas (caminos) más profundas desde el artista dado.
+        """
+        artista_key = self._encontrar_key_case_insensitive(artista)
+        if not artista_key:
+            return []
+
+        visitados = set()
+        # La pila guarda tuplas: (nodo_actual, camino_hasta_aqui)
+        pila = [(artista_key, [artista_key])]
+        caminos_profundos = []
+
+        while pila:
+            actual, camino = pila.pop()
+            
+            if actual not in visitados:
+                visitados.add(actual)
+                
+                vecinos_no_visitados = [v for v in self.adyacencia.get(actual, {}) if v not in visitados]
+                
+                # Si llegamos a un extremo (hoja en este recorrido) y el camino tiene más de 1 nodo
+                if not vecinos_no_visitados and len(camino) > 1:
+                    caminos_profundos.append(camino)
+                
+                # Ordenamos alfabéticamente en reversa para que al extraer de la pila
+                # el recorrido sea determinista y ordenado alfabéticamente
+                for vecino in sorted(vecinos_no_visitados, reverse=True):
+                    pila.append((vecino, camino + [vecino]))
+                    
+        return caminos_profundos
+
     def _encontrar_key_case_insensitive(self, artista: str):
         """Permite buscar 'lali' y encontrar 'Lali'."""
         target = artista.strip().lower()
@@ -93,3 +129,4 @@ class GrafoColaboraciones:
             if key.lower() == target:
                 return key
         return None
+    

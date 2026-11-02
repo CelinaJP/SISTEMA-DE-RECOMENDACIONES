@@ -232,13 +232,18 @@ SISTEMA-DE-RECOMENDACIONES/
 
 ---
 
+<!-- Modificar únicamente la sección de Estado en el README.md existente -->
+
 ## Estado
 TP0 COMPLETADO
-TP1 INCOMPLETO
+TP1 INCOMPLETO (se completo fuera de termino)
 TP2 COMPLETADO — Análisis de complejidad y justificación de estrategia de búsqueda
 TP3 COMPLETADO — Árbol Binario de Búsqueda integrado (título/artista), tests y benchmark
 TP4 COMPLETADO — Árbol AVL con rotaciones, comparación BST vs. AVL y análisis de balance
-TP5 INCOMPLETO 
+TP5 INCOMPLETO (se completo fuera de termino)
+TP6 COMPLETADO — Colas de prioridad y Heaps para Ranking (Versión 4)
+TP7 COMPLETADO — Grafo de Colaboraciones y Lista de Adyacencia (Versión 5)
+TP8 COMPLETADO — Búsqueda BFS y DFS en Grafos integrados (Versión 6)
 ---
 
 ## Instalación y ejecución
