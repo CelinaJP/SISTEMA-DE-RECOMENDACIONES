@@ -38,12 +38,13 @@ class GrafoColaboraciones:
         """Construye la red de colaboraciones iterando sobre el catálogo."""
         canciones = catalogo.listar() if hasattr(catalogo, "listar") else []
         for c in canciones:
-            artista_principal = getattr(c, "artista_principal", "Miranda!")
-            colaboradores = getattr(c, "colaboradores", [])
-            titulo = getattr(c, "titulo", "Desconocida")
+            # Búsqueda segura de atributos (públicos o privados)
+            artista_principal = getattr(c, "artista_principal", getattr(c, "_artista_principal", "Miranda!"))
+            colaboradores = getattr(c, "colaboradores", getattr(c, "_colaboradores", []))
+            titulo = getattr(c, "titulo", getattr(c, "_titulo", "Desconocida"))
             
             # Calculamos el costo: a mayor popularidad, menor "distancia" (costo)
-            popularidad = getattr(c, "popularidad", 50)
+            popularidad = getattr(c, "popularidad", getattr(c, "_popularidad", 50))
             peso = max(1.0, 100.0 - float(popularidad))
             
             self.agregar_vertice(artista_principal)
