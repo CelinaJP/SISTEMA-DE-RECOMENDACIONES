@@ -13,9 +13,15 @@ Para encontrar el "camino de colaboración más fuerte" entre dos artistas, impl
 **¿Por qué Dijkstra y no otro (ej. Bellman-Ford o Floyd-Warshall)?**
 1. **Ausencia de pesos negativos:** La popularidad en nuestro catálogo va de 0 a 100. Por lo tanto, el costo (`100 - popularidad`) siempre será un valor positivo ($\ge 0$). Dijkstra es matemáticamente óptimo y seguro bajo esta condición.
 2. **Grafo No Dirigido:** Las colaboraciones son mutuas. Dijkstra funciona perfectamente en grafos no dirigidos (tratando cada arista como bidireccional con el mismo peso positivo).
-3. **Densidad del Grafo:** La red de colaboraciones musicales es un **grafo disperso** (pocos artistas colaboran con *todos* los demás). Dijkstra, implementado con una Cola de Prioridad (`heapq` en Python), tiene una complejidad de $O((V + E) \log V)$, lo cual es inmensamente más eficiente que Floyd-Warshall ($O(V^3)$) para grafos dispersos cuando solo necesitamos el camino entre un origen y un destino específicos.
+3. **Densidad del Grafo:** La red de colaboraciones musicales es un **grafo disperso** (pocos artistas colaboran con *todos* los demás). Dijkstra, implementado con una Cola de Prioridad (`heapq` en Python), es inmensamente más eficiente que Floyd-Warshall para grafos dispersos cuando solo necesitamos el camino entre un origen y un destino específicos.
 
-## 3. Evaluación de Dependencias (Ordenamiento Topológico)
+## 3. Análisis de Complejidad (Temporal y Espacial)
+* **Complejidad Temporal:** $O((V + E) \log V)$
+  Donde $V$ es el número de vértices (artistas) y $E$ el número de aristas (colaboraciones). Al utilizar una Cola de Prioridad (`heapq` nativo de Python), la extracción del nodo con menor costo toma $O(\log V)$ y se realiza a lo sumo $V$ veces. La actualización de las distancias de los vecinos toma $O(\log V)$ y se realiza a lo sumo $E$ veces.
+* **Complejidad Espacial:** $O(V)$
+  El algoritmo requiere almacenar las distancias mínimas (`distancias`), los nodos previos para reconstruir el camino (`padres`), y la cola de prioridad (`pq`). En el peor de los casos, todas estas estructuras almacenan un número de elementos directamente proporcional a la cantidad de vértices $V$ del grafo.
+
+## 4. Evaluación de Dependencias (Ordenamiento Topológico)
 El requerimiento solicitaba evaluar la inclusión de un **Ordenamiento Topológico** si el dominio presentaba relaciones de dependencia.
 
 **Conclusión de la evaluación:** *No es aplicable a este grafo.*
