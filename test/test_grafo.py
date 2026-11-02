@@ -1,8 +1,14 @@
 """
-Tests unitarios para el Grafo de Colaboraciones y algoritmos de recorrido.
+Tests unitarios para el Grafo de Colaboraciones y algoritmos de recorrido (TP7, TP8, TP9).
 """
 
 import unittest
+import sys
+import os
+
+# Aseguramos que Python encuentre los módulos del proyecto
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from estructuras.grafo import GrafoColaboraciones
 from modelos.cancion import Cancion
 
@@ -64,3 +70,4 @@ class TestGrafoColaboraciones(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    
