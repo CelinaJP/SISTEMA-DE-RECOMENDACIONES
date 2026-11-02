@@ -151,32 +151,50 @@ class MenuInicio:
                 return True
 
             if self.grafo_colaboraciones:
-                directas = self.grafo_colaboraciones.obtener_conexiones_directas(colaborador)
-                
-                if not directas:
+                nombre_real = self.grafo_colaboraciones._encontrar_key_case_insensitive(colaborador)
+                if not nombre_real:
                     print(f"\n[!] No se encontró a '{colaborador}' en la red de colaboraciones.")
                 else:
-                    nombre_real = self.grafo_colaboraciones._encontrar_key_case_insensitive(colaborador)
                     print(f"\n[ COLABORADOR DETECTADO: {nombre_real} ]")
-                    print("-" * 60)
-                    print("Colaboraciones directas:")
-                    for colab, canciones in directas.items():
-                        canciones_str = ", ".join(f'"{c}"' for c in canciones)
-                        print(f" - {colab} (en {canciones_str})")
-                        
-                    print("\nRed de conexiones indirectas (2 grados de separación):")
-                    indirectas = self.grafo_colaboraciones.buscar_conexiones_indirectas(nombre_real, grados=2)
+                    print("1. Buscar conexiones cercanas (BFS - Grados de separación)")
+                    print("2. Explorar ecosistema completo (DFS - Cadenas de colaboración profundas)")
+                    sub_op = input("\nSeleccione el tipo de exploración (1-2): ").strip()
+
+                    print("\n" + "-" * 70)
+                    if sub_op == "1":
+                        print("--- MODO BFS: CONEXIONES CERCANAS ---")
+                        directas = self.grafo_colaboraciones.obtener_conexiones_directas(nombre_real)
+                        print("Colaboraciones directas (Grado 1):")
+                        for colab, canciones in directas.items():
+                            canciones_str = ", ".join(f'"{c}"' for c in canciones)
+                            print(f" - {colab} (en {canciones_str})")
+                            
+                        print("\nRed de conexiones indirectas (Grado 2):")
+                        indirectas = self.grafo_colaboraciones.buscar_conexiones_indirectas(nombre_real, grados=2)
+                        indirectas_grado2 = {k: v for k, v in indirectas.items() if v[0] == 2}
+                        if indirectas_grado2:
+                            for colab, (grado, camino) in indirectas_grado2.items():
+                                camino_str = " ──► ".join(camino)
+                                print(f" - {colab} (Ruta: {camino_str})")
+                        else:
+                            print(" - No se encontraron conexiones indirectas a 2 grados.")
                     
-                    # Filtrar para mostrar solo las de grado 2 (las de grado 1 ya son directas)
-                    indirectas_grado2 = {k: v for k, v in indirectas.items() if v[0] == 2}
-                    
-                    if indirectas_grado2:
-                        for colab, (grado, camino) in indirectas_grado2.items():
-                            camino_str = " ──► ".join(camino)
-                            print(f" - {colab} (Ruta: {camino_str})")
+                    elif sub_op == "2":
+                        print("--- MODO DFS: ECOSISTEMA Y CADENAS LARGAS ---")
+                        print(f"Explorando caminos profundos de colaboraciones desde '{nombre_real}'...\n")
+                        caminos = self.grafo_colaboraciones.explorar_ecosistema_dfs(nombre_real)
+                        if caminos:
+                            # Mostrar solo los 5 caminos más largos para no saturar la pantalla
+                            caminos_largos = sorted(caminos, key=len, reverse=True)[:5]
+                            for i, ruta in enumerate(caminos_largos, 1):
+                                ruta_str = " ──► ".join(ruta)
+                                print(f" {i}. {ruta_str} ({len(ruta)-1} saltos)")
+                        else:
+                            print(" - No hay cadenas de colaboración extendidas desde este artista.")
                     else:
-                        print(" - No se encontraron conexiones indirectas a 2 grados.")
-                    print("-" * 60)
+                        print("Opción inválida.")
+                    
+                    print("-" * 70)
             else:
                 print("El grafo de colaboraciones no está inicializado.")
 
