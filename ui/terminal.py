@@ -158,7 +158,8 @@ class MenuInicio:
                     print(f"\n[ COLABORADOR DETECTADO: {nombre_real} ]")
                     print("1. Buscar conexiones cercanas (BFS - Grados de separación)")
                     print("2. Explorar ecosistema completo (DFS - Cadenas de colaboración profundas)")
-                    sub_op = input("\nSeleccione el tipo de exploración (1-2): ").strip()
+                    print("3. Encontrar el camino más fuerte hacia otro artista (Dijkstra)")
+                    sub_op = input("\nSeleccione el tipo de exploración (1-3): ").strip()
 
                     print("\n" + "-" * 70)
                     if sub_op == "1":
@@ -184,13 +185,23 @@ class MenuInicio:
                         print(f"Explorando caminos profundos de colaboraciones desde '{nombre_real}'...\n")
                         caminos = self.grafo_colaboraciones.explorar_ecosistema_dfs(nombre_real)
                         if caminos:
-                            # Mostrar solo los 5 caminos más largos para no saturar la pantalla
                             caminos_largos = sorted(caminos, key=len, reverse=True)[:5]
                             for i, ruta in enumerate(caminos_largos, 1):
                                 ruta_str = " ──► ".join(ruta)
                                 print(f" {i}. {ruta_str} ({len(ruta)-1} saltos)")
                         else:
                             print(" - No hay cadenas de colaboración extendidas desde este artista.")
+                            
+                    elif sub_op == "3":
+                        print("--- MODO DIJKSTRA: CAMINO MÁS FUERTE ---")
+                        destino = input(f"Ingrese el artista destino para conectar con '{nombre_real}': ").strip()
+                        camino, costo = self.grafo_colaboraciones.camino_mas_fuerte_dijkstra(nombre_real, destino)
+                        
+                        if camino:
+                            print(f"\n¡Conexión encontrada! (Costo de afinidad: {costo:.2f})")
+                            print(" ──► ".join(camino))
+                        else:
+                            print(f"\nNo existe un camino de colaboración entre '{nombre_real}' y '{destino}'.")
                     else:
                         print("Opción inválida.")
                     
