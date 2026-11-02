@@ -244,6 +244,7 @@ TP5 INCOMPLETO (se completo fuera de termino)
 TP6 COMPLETADO — Colas de prioridad y Heaps para Ranking (Versión 4)
 TP7 COMPLETADO — Grafo de Colaboraciones y Lista de Adyacencia (Versión 5)
 TP8 COMPLETADO — Búsqueda BFS y DFS en Grafos integrados (Versión 6)
+TP9 COMPLETADO — Optimización de Grafos Pesados con Dijkstra (Versión 7)
 ---
 
 ## Instalación y ejecución
