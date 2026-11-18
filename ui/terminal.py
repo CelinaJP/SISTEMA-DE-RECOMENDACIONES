@@ -144,6 +144,17 @@ class MenuInicio:
             input("\nPresione ENTER para continuar...")
             return True
 
+        # 4. GENERAR PLAYLIST POR TIEMPO
+        elif opcion == "4":
+            self.limpiar_pantalla()
+            print("--- GENERAR PLAYLIST POR TIEMPO LÍMITE ---")
+            print("\n[ℹ️  Funcionalidad en Desarrollo]")
+            print("La generación automática de playlists ajustadas a un tiempo límite en minutos")
+            print("se encuentra planificada para futuras iteraciones basadas en algoritmos")
+            print("de optimización y selección de canciones.")
+            input("\nPresione ENTER para continuar...")
+            return True
+
         # 5. EXPLORAR COLABORADOR (GRAFO)
         elif opcion == "5":
             self.limpiar_pantalla()
@@ -217,18 +228,21 @@ class MenuInicio:
             input("\nPresione ENTER para continuar...")
             return True
 
-        # OPCIONES EN DESARROLLO (4, 6, 7, 8)
-        elif opcion in ["4", "6", "7", "8"]:
+        # 6, 7, 8. CONSULTA Y CONTRASTE DE VERSIONES
+        elif opcion in ["6", "7", "8"]:
             self.limpiar_pantalla()
-            mapeo_metodos = {
-                "4": ("playlist_x_tiempo", "Playlist por Tiempo"),
-                "6": ("comparar_versiones", "Comparar Versiones"),
-                "7": ("puente_temporal", "Puente Temporal"),
-                "8": ("obtener_version_clasica", "Obtener Versión Clásica"),
+            mapeo_titulos = {
+                "6": "COMPARAR VERSIONES",
+                "7": "PUENTE TEMPORAL",
+                "8": "OBTENER VERSIÓN CLÁSICA",
             }
-            metodo_nombre, titulo = mapeo_metodos[opcion]
-            print(f"--- {titulo.upper()} ---")
-            print(f"[En desarrollo] Esta opción usará '{metodo_nombre}()' cuando lo agreguen al catálogo.")
+            titulo = mapeo_titulos[opcion]
+            print(f"--- {titulo} ---")
+            print("\n[ℹ️  Funcionalidad Integrada]")
+            print(f"La opción '{titulo}' como módulo individual está reservada para futuras versiones.")
+            print("Recordá que la consulta y el contraste entre versiones clásicas y modernas")
+            print("ya se encuentra disponible y optimizada directamente en la Opción 2 (Buscar canción),")
+            print("donde el Árbol AVL agrupa automáticamente ambas versiones bajo el mismo título.")
             input("\nPresione ENTER para continuar...")
             return True
 
@@ -280,4 +294,3 @@ class MenuInicio:
             print("\nOpción inválida. Intente de nuevo.")
             input("\nPresione ENTER for continuar...")
             return True
-        
