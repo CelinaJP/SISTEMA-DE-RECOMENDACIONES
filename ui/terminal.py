@@ -1,7 +1,8 @@
 # ui/terminal.py
 
 import os
-from estructuras.arbol_binario import ArbolPorArtista, ArbolPorTitulo
+from estructuras.arbol_avl import ArbolAVLPorTitulo
+from estructuras.arbol_binario import ArbolPorArtista
 from servicios.gestor_catalogo import Catalogo as CatalogoDeCancion
 
 
@@ -10,13 +11,13 @@ class MenuInicio:
     def __init__(
         self,
         catalogo: CatalogoDeCancion,
-        arbol_titulos: ArbolPorTitulo = None,
+        arbol_avl: ArbolAVLPorTitulo = None,
         arbol_artistas: ArbolPorArtista = None,
         arbol_general = None,
         grafo_colaboraciones = None,
     ):
         self.catalogo = catalogo
-        self.arbol_titulos = arbol_titulos
+        self.arbol_avl = arbol_avl
         self.arbol_artistas = arbol_artistas
         self.arbol_general = arbol_general
         self.grafo_colaboraciones = grafo_colaboraciones
@@ -68,7 +69,7 @@ class MenuInicio:
             input("\nPresione ENTER para continuar...")
             return True
         
-        # 2. BUSCAR CANCIÓN (por ABB)
+        # 2. BUSCAR CANCIÓN (por AVL y ABB)
         elif opcion == "2":
             self.limpiar_pantalla()
             print("--- BUSCAR CANCIÓN (título o artista) ---")
@@ -79,8 +80,8 @@ class MenuInicio:
                 return True
 
             resultados = []
-            if self.arbol_titulos is not None and self.arbol_artistas is not None:
-                por_titulo = self.arbol_titulos.buscar_por_titulo(criterio)
+            if self.arbol_avl is not None and self.arbol_artistas is not None:
+                por_titulo = self.arbol_avl.buscar_por_titulo(criterio)
                 por_artista = self.arbol_artistas.buscar_por_artista(criterio)
                 ids_vistos = set()
                 for c in por_titulo + por_artista:
@@ -88,6 +89,10 @@ class MenuInicio:
                     if cid not in ids_vistos:
                         ids_vistos.add(cid)
                         resultados.append(c)
+            elif self.arbol_avl is not None:
+                resultados = self.arbol_avl.buscar_por_titulo(criterio)
+            elif self.arbol_artistas is not None:
+                resultados = self.arbol_artistas.buscar_por_artista(criterio)
             else:
                 resultados = self.catalogo.buscar(criterio) if hasattr(self.catalogo, "buscar") else []
 
