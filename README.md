@@ -1,13 +1,13 @@
 # SISTEMA DE RECOMENDACIONES
 # EL BOT DE TU CORAZÓN — Miranda!  🤖❤️
 
-Sistema de recomendación y exploración del catálogo musical de **Miranda!** que permite buscar, filtrar por eras, explorar redes de colaboración cross-género y generar selecciones personalizadas según las preferencias y el tiempo disponible del usuario
+Sistema de recomendación y exploración del catálogo musical de **Miranda!** que permite buscar, filtrar por eras, explorar redes de colaboración cross-género y generar selecciones personalizadas según las preferencias y el tiempo disponible del usuario.
 
 ---
 
 ## Integrantes
-Celina Jazmin Pereyra
-Iara Stefania Santarella
+- Celina Jazmin Pereyra
+- Iara Stefania Santarella *(Baja durante la cursada)*
 
 ---
 
@@ -17,16 +17,17 @@ Iara Stefania Santarella
 - [Problema que Resuelve](#2-problema-que-resuelve)
 - [Usuario Objetivo](#3-usuario-objetivo)
 - [Funcionalidades Requeridas](#4-funcionalidades-iniciales)
-- [Búsqueda por Título o Artista (Árbol Binario de Búsqueda)](#búsqueda-por-título-o-artista-árbol-binario-de-búsqueda)
+- [Búsqueda por Título o Artista (Árbol AVL y ABB)](#búsqueda-por-título-o-artista-árbol-avl-y-abb)
 - [Balanceo Automático (Árbol AVL)](#balanceo-automático-árbol-avl)
+- [Jerarquía del Catálogo (Árbol General)](#jerarquía-del-catálogo-árbol-general)
 - [Estructura del Repositorio](#estructura-del-repositorio)
+- [Estado](#estado)
 - [Instalación y Ejecución](#instalación-y-ejecución)
-- [Ejemplo de Uso](#ejemplo-de-uso)
 
 ---
 
 ## Descripción del Proyecto
-**EL BOT DE TU CORAZÓN** es una aplicación interactiva desarrollada para la materia Estructuras de Datos. Permite conectar el catálogo clásico de más de 20 años de la banda Miranda! con sus re-versiones colaborativas modernas (*Hotel Miranda!*), facilitando el descubrimiento musical a través de algoritmos de recomendación, filtrado y modelado en grafos/heaps.
+**EL BOT DE TU CORAZÓN** es una aplicación interactiva desarrollada para la materia Estructuras de Datos. Permite conectar el catálogo clásico de más de 20 años de la banda Miranda! con sus re-versiones colaborativas modernas (*Hotel Miranda!*), facilitando el descubrimiento musical a través de algoritmos de recomendación, filtrado y modelado en grafos, árboles y heaps.
 
 ---
 
@@ -35,8 +36,8 @@ Iara Stefania Santarella
 * **Justificación:** El catálogo de Miranda! brinda un conjunto heterogéneo y rico de datos ideales para aplicar y justificar el uso de estructuras de datos fundamentales:
   * **Grafos:** Mapeo de la red de colaboraciones cross-género (*Lali, CA7RIEL, María Becerra, FMK, Emilia*).
   * **Diccionarios / Tablas Hash:** Búsqueda e interconexión rápida $O(1)$ entre canciones originales y sus re-versiones.
-  * **Árboles / Heaps:** Ordenamiento eficiente para la extracción dinámica de los Tops por popularidad, y búsqueda de canciones por título/artista en tiempo logarítmico mediante un Árbol Binario de Búsqueda, con una variante auto-balanceada (AVL) que garantiza ese rendimiento incluso en el peor caso (ver [Búsqueda por Título o Artista](#búsqueda-por-título-o-artista-árbol-binario-de-búsqueda) y [Balanceo Automático](#balanceo-automático-árbol-avl)).
-  * **Listas y Algoritmos de Búsqueda:** Generación de playlists ajustadas a duraciones acumuladas exactas.
+  * **Árboles / Heaps:** Ordenamiento eficiente para la extracción dinámica de los Tops por popularidad, y búsqueda de canciones por título/artista en tiempo logarítmico mediante un Árbol Binario de Búsqueda, con una variante auto-balanceada (AVL) que garantiza ese rendimiento incluso en el peor caso.
+  * **Listas y Algoritmos de Búsqueda:** Generación de playlists y filtrado por metadatos.
 
 ---
 
@@ -54,86 +55,41 @@ La brecha generacional y de formato entre el catálogo clásico de un artista ex
 
 | ID | Requerimiento Funcional | Descripción Algorítmica |
 |---|---|---|
-| **RF01** | **Top 10 Dinámico de Popularidad** | Muestra y ordena el catálogo de mayor a menor según su popularidad/reproducciones. |
-| **RF02** | **Playlist por Tiempo Límite** | Genera una combinación de canciones ajustada a un límite de tiempo en minutos especificado por el usuario. |
-| **RF03** | **Explorador por Colaborador** | Utiliza un Árbol Binario de Búsqueda indexado por artista (`ArbolPorArtista`) para recuperar en tiempo logarítmico todas las canciones asociadas a un artista invitado. |
+| **RF01** | **Top 10 Dinámico de Popularidad** | Muestra y ordena el catálogo de mayor a menor según su popularidad mediante un Max-Heap manual. |
+| **RF02** | **Playlist por Tiempo Límite** | Planificada conceptualmente como problema de optimización combinatoria (Knapsack). |
+| **RF03** | **Explorador por Colaborador** | Recorre la red de colaboraciones mediante algoritmos de grafos (BFS / DFS / Dijkstra). |
 | **RF04** | **Filtro por Era / Etapa** | Separa el catálogo entre la *Era Clásica* ($<2010$) y la *Era Moderna / Hotel Miranda!* ($\ge2020$). |
 | **RF05** | **Similitud por Género / Mood** | Recomienda obras similares a partir de una canción base evaluando género o vibra. |
-| **RF06** | **Comparador de Versiones** | Muestra un frente a frente comparando métricas (duración, popularidad, participantes) entre una versión clásica y su re-versión moderna. |
-| **RF07** | **Puente Temporal** | Detecta una canción moderna seleccionada y sugiere automáticamente reproducir la versión clásica original (o viceversa). |
-| **RF08** | **Búsqueda por Título o Artista** | Busca una canción puntual por título exacto, o todas las canciones de un artista/colaborador, usando dos Árboles Binarios de Búsqueda (`ArbolPorTitulo` y `ArbolPorArtista`). Ver detalle abajo. |
-| **RF09** | **Balanceo Automático del Árbol (AVL)** | Garantiza que la búsqueda por título/artista se mantenga en $O(\log n)$ incluso en el peor caso (datos insertados ya ordenados), mediante rotaciones automáticas. Ver detalle abajo. |
+| **RF06** | **Comparador de Versiones** | Integrado de forma nativa en la búsqueda AVL, agrupando versiones en el mismo nodo. |
+| **RF07** | **Puente Temporal** | Detecta variantes clásicas y modernas agrupadas por clave en el Árbol AVL. |
+| **RF08** | **Búsqueda por Título o Artista** | Búsqueda por título en Árbol AVL (`ArbolAVLPorTitulo`) y por artista en ABB (`ArbolPorArtista`). |
+| **RF09** | **Balanceo Automático del Árbol (AVL)** | Garantiza que la búsqueda se mantenga en $O(\log n)$ incluso con datos preordenados. |
 
 ---
 
-## Búsqueda por Título o Artista (Árbol Binario de Búsqueda)
+## Búsqueda por Título o Artista (Árbol AVL y ABB)
 
-A partir de TP3, la búsqueda de canciones por **título** o por **artista/colaborador**
-se resuelve mediante dos Árboles Binarios de Búsqueda (ABB), en reemplazo de la
-búsqueda secuencial de TP2. Esto baja la complejidad de $O(n)$ a $O(\log n)$ promedio.
+La búsqueda interactiva de canciones se resuelve mediante árboles:
+- **Por Título:** utiliza `ArbolAVLPorTitulo` garantizando complejidad $O(\log n)$ siempre. Agrupa versiones clásica y moderna bajo el mismo nodo de título.
+- **Por Artista:** utiliza `ArbolPorArtista` indexando tanto artista principal como colaboradores.
 
 ### Cómo se usa desde la CLI
 
-Al iniciar la aplicación, los árboles se construyen automáticamente a partir del
-catálogo (`datos/miranda_canciones.json`):
-
 ```bash
-python main.py
+python3 main.py
 ```
 
 Luego, desde el menú principal:
-
-- **Opción 2 — Buscar canción (por título o artista):** ingresá el título exacto de
-  una canción (ej. `Bailarina`) o el nombre de un artista/colaborador (ej. `Lali`).
-  La búsqueda usa el ABB internamente y devuelve resultados en tiempo logarítmico.
-  > Nota: a diferencia de la opción 3 (Filtrar), esta búsqueda es por **coincidencia
-  > exacta** (sin distinguir mayúsculas/acentos) — es una particularidad de cómo
-  > funciona la búsqueda por clave en un árbol binario. Para búsqueda parcial/por
-  > texto libre, usá la opción 3.
-
-- **Opción 5 — Explorar Colaborador:** ingresá el nombre de un colaborador (ej.
-  `Emilia`) y el sistema devuelve todas las canciones donde participó, usando el
-  mismo árbol de artistas.
-
-### Estructura interna
-
-- `estructuras/arbol_binario.py`: contiene `NodoArbol` y `ArbolBinarioBusqueda`
-  (clases genéricas), y las especializaciones `ArbolPorTitulo` y `ArbolPorArtista`.
-- `ArbolPorTitulo`: indexa cada canción por su título. Los títulos repetidos
-  (versión clásica y moderna de una misma canción) se agrupan en un mismo nodo.
-- `ArbolPorArtista`: indexa cada canción tanto por su artista principal como por
-  cada colaborador, de forma que buscar cualquiera de los dos encuentra la canción.
-
-### Comparación de rendimiento y análisis de complejidad
-
-El análisis completo de complejidad ($O$, $\Omega$, $\Theta$) y la comparación de
-tiempos reales entre la búsqueda secuencial y el ABB están documentados en:
-[`docs/02-documentacion.md`](docs/02-documentacion.md).
-
-El script que genera esos datos de rendimiento se puede correr con:
-
-```bash
-python benchmarks/comparacion_busqueda.py
-```
-
-### Tests
-
-```bash
-python3 -m unittest discover -s test -v
-```
+- **Opción 2 — Buscar canción (por título o artista):** ingresá el título exacto de una canción (ej. `Traición`) o artista (ej. `Lali`). Devuelve de forma simultánea las versiones clásica y moderna agrupadas.
+- **Opción 5 — Explorar Colaborador (Grafo):** permite recorrer conexiones directas, grados de separación (BFS), cadenas profundas (DFS) o el camino de afinidad más fuerte (Dijkstra).
 
 ---
 
 ## Balanceo Automático (Árbol AVL)
 
-El Árbol Binario de Búsqueda del TP3 garantiza $O(\log n)$ solo si está razonablemente
-balanceado. En el **peor caso** (títulos insertados ya ordenados alfabéticamente), el
-árbol degenera en una lista enlazada, con complejidad $O(n)$ — y con catálogos grandes,
-directamente deja de funcionar: la inserción recursiva llega a **crashear** (`RecursionError`).
+El Árbol Binario de Búsqueda del TP3 garantiza $O(\log n)$ solo si está balanceado. En el **peor caso** (títulos insertados ya ordenados), degenera en una lista enlazada $O(n)$ y puede desbordar la recursión de Python.
 
-A partir de TP4, se incorporó un **Árbol AVL**, que se auto-balancea tras cada inserción
-mediante rotaciones, garantizando $O(\log n)$ en el peor caso, sin importar el orden en
-que lleguen los datos.
+El **Árbol AVL** se auto-balancea tras cada inserción mediante rotaciones simples y dobles, garantizando $O(\log n)$ en el peor caso.
 
 ### Resultados reales (peor caso: títulos ya ordenados)
 
@@ -144,46 +100,17 @@ que lleguen los datos.
 | 1.000 | **CRASH** (RecursionError) | 10 | 10 |
 | 10.000 | **CRASH** (RecursionError) | 14 | 14 |
 
-Con orden de inserción **aleatorio** (más parecido al caso real), la diferencia es
-mucho menor — el problema de desbalance es específico de datos ya ordenados, no una
-falla general del BST. El análisis completo, con las 4 rotaciones explicadas y la
-comparación completa, está en
-[`docs/08-analisis-tp4.md`](docs/08-analisis-tp4.md).
+El análisis completo está disponible en [`docs/08-analisis-tp4.md`](docs/08-analisis-tp4.md).
 
-### Estructura interna
-
-- `estructuras/arbol_avl.py`: `NodoAVL`, `ArbolAVL` (con las 4 rotaciones: simple
-  izquierda, simple derecha, doble izquierda-derecha, doble derecha-izquierda) y la
-  especialización `ArbolAVLPorTitulo`. Mantiene la misma interfaz pública que el ABB
-  del TP3 (`insertar`, `buscar`, `inorder`, `preorder`, `postorder`), más
-  `altura()` y `esta_balanceado()`.
-
-### Scripts y tests
-
-```bash
-python algoritmos/generar_casos_desbalance.py   # genera los casos de desbalance
-python benchmarks/comparacion_bst_avl.py        # benchmark BST común vs. AVL
-python3 -m unittest discover -s test -v         # corre todos los tests (BST + AVL)
-```
+---
 
 ## Jerarquía del Catálogo (Árbol General)
 
 A partir del TP5, se incorporó un **Árbol General (`ArbolGeneral`)** n-ario para estructurar el catálogo de Miranda! en una jerarquía de 3 niveles:
-
 - **Estructura:** `Era (Clásica / Moderna)` ➔ `Género (Electropop, Synthpop Retro, etc.)` ➔ `Canciones (Nodos hoja)`.
-- **Justificación:** Se eligió el orden **Era → Género** porque la discografía de Miranda! se divide de manera orgánica y conceptual en dos grandes etapas (*Era Clásica* $<2010$ y *Era Moderna / Hotel Miranda!* $\ge2020$). Agrupar primero por era facilita la separación conceptual de sus obras originales frente a sus re-versiones modernas y optimiza las consultas principales del bot.
+- **Justificación:** Agrupar primero por era facilita la separación conceptual de sus obras originales frente a sus re-versiones modernas y optimiza las consultas principales del bot.
 
-### Estructura interna y archivos
-
-- `estructuras/arbol_general.py`: contiene `NodoGeneral` y `ArbolGeneral`. Implementa atributos privados y `@property` siguiendo el estándar del proyecto, junto con los métodos para agregar nodos, insertar canciones y cargar dinámicamente desde el catálogo JSON (`cargar_desde_catalogo`).
-- `docs/09-analisis-tp5.md`: documentación técnica detallada y resultados de la verificación manual de ramas.
-
-### Verificación y ejecución
-
-Para probar la carga del catálogo completo y recorrer las ramas de la jerarquía:
-
-```bash
-python3 estructuras/arbol_general.py
+Detalles en [`docs/09-analisis-tp5.md`](docs/09-analisis-tp5.md).
 
 ---
 
@@ -192,82 +119,98 @@ El proyecto está organizado de manera modular respetando las pautas de arquitec
 
 ```text
 SISTEMA-DE-RECOMENDACIONES/
-├── algoritmos/                       # Scripts de demostración y generación de casos de prueba
-│   ├── probar_bst.py                 # Demo del BST: inserción, búsqueda y recorridos (TP3)
-│   └── generar_casos_desbalance.py   # Genera casos de desbalance BST vs. AVL (TP4)
+├── algoritmos/                       # Scripts de demostración y utilidades algorítmicas
+│   ├── generar_casos_desbalance.py   # Genera casos de desbalance BST vs. AVL (TP4)
+│   ├── prioridad.py                  # Función de prioridad para Ranking (TP6)
+│   ├── probar_bst.py                 # Demo del BST (TP3)
+│   └── ranking.py                    # Extracción Top-N con MaxHeap (TP6)
 ├── benchmarks/                       # Scripts de comparación de rendimiento
 │   ├── comparacion_busqueda.py       # Secuencial vs. binaria vs. ABB (TP2/TP3)
 │   ├── resultados_comparacion.csv
 │   ├── comparacion_bst_avl.py        # BST común vs. AVL (TP4)
 │   └── resultados_bst_vs_avl.csv
 ├── datos/
-│   └── miranda_canciones.json        # Catálogo estructurado en JSON
-├── docs/                             # Documentación y propuestas del TP
-│   ├── 01-requerimientos.md
-│   ├── 02-documentacion.md           # Análisis de complejidad (TP2) y su justificación
-│   ├── 03-interfaz-terminal.md
-│   ├── 04-diagrama-clases.md
-│   ├── 05-gestion-del-proyecto.md
-│   ├── 08-analisis-tp4.md            # Análisis técnico: BST vs. AVL, rotaciones, conclusión
-│   └── 09-analisis-tp5.md            # Análisis técnico: Árbol General y Jerarquía (TP5)
-├── estructuras/                      # Implementación de estructuras de datos propias
-│   ├── arbol_binario.py              # ABB genérico + ArbolPorTitulo / ArbolPorArtista (TP3)
-│   ├── arbol_avl.py                  # AVL genérico + ArbolAVLPorTitulo, con rotaciones (TP4)
-│   └── arbol_general.py              # Árbol General n-ario + NodoGeneral (TP5)
-├── modelos/                          # Entidades principales
+│   └── miranda_canciones.json        # Catálogo estructurado en JSON (120 canciones)
+├── docs/                             # Documentación técnica de entregas y análisis
+│   ├── 01-requerimientos.md          # Especificación de requisitos del sistema
+│   ├── 02-documentacion.md           # Análisis de complejidad y justificación (TP2)
+│   ├── 03-interfaz-terminal.md       # Interaction flow de la CLI
+│   ├── 04-diagrama-clases.md         # Diagrama UML de clases
+│   ├── 05-gestion-del-proyecto.md    # Metodología y gestión Scrum/Kanban
+│   ├── 07-analisis-tp3.md            # Análisis de BST y benchmark de búsqueda
+│   ├── 08-analisis-tp4.md            # Análisis técnico: BST vs. AVL y rotaciones
+│   ├── 09-analisis-tp5.md            # Análisis técnico: Árbol General N-ario
+│   ├── 10-analisis-tp6.md            # Análisis técnico: Max-Heap y Ranking
+│   ├── 11-analisis-tp7.md            # Análisis técnico: Grafo de Colaboraciones
+│   ├── 12-analisis-tp8.md            # Análisis técnico: Recorridos BFS y DFS en grafos
+│   ├── 13-analisis-tp9.md            # Análisis técnico: Grafos Pesados y Dijkstra
+│   └── 14-analisis-tp10-demoday.md   # Arquitectura final, límites y Demo Day
+├── estructuras/                      # Implementaciones de estructuras de datos
+│   ├── arbol_avl.py                  # Árbol AVL genérico y por título (TP4)
+│   ├── arbol_binario.py              # ABB genérico, por título y por artista (TP3)
+│   ├── arbol_general.py              # Árbol General n-ario y NodoGeneral (TP5)
+│   ├── grafo.py                      # Grafo pesado, BFS, DFS y Dijkstra (TP7/TP8/TP9)
+│   └── heap.py                       # Implementación manual de Max-Heap (TP6)
+├── modelos/                          # Entidades del dominio
 │   ├── __init__.py
 │   ├── cancion.py
 │   ├── genero.py
 │   └── usuario.py
-├── servicios/                        # Lógica de negocio y recomendaciones
+├── servicios/                        # Lógica de negocio y catálogo
 │   └── gestor_catalogo.py
 ├── test/                             # Pruebas unitarias
-│   ├── test_arbol_binario.py         # 27 tests (TP3)
-│   └── test_arbol_avl.py             # 25 tests (TP4)
-├── ui/                                # Interfaz gráfica o de consola
+│   ├── test_arbol_avl.py             # Tests unitarios AVL (TP4)
+│   ├── test_arbol_binario.py         # Tests unitarios ABB (TP3)
+│   ├── test_arbol_general.py         # Tests unitarios Árbol General (TP5)
+│   ├── test_grafo.py                 # Tests unitarios Grafo (TP7/TP8/TP9)
+│   └── test_heap.py                  # Tests unitarios MaxHeap (TP6)
+├── ui/                               # Interfaz de usuario por consola
 │   └── terminal.py
-├── .gitignore                        # Filtro de archivos no rastreados por Git
+├── .gitignore                        # Archivos ignorados por Git
 ├── main.py                           # Punto de entrada de la aplicación
-└── README.md    
+└── README.md                         # Documentación principal
+```
 
 ---
 
-<!-- Modificar únicamente la sección de Estado en el README.md existente -->
-
 ## Estado
-TP0 COMPLETADO
-TP1 INCOMPLETO (se completo fuera de termino)
-TP2 COMPLETADO — Análisis de complejidad y justificación de estrategia de búsqueda
-TP3 COMPLETADO — Árbol Binario de Búsqueda integrado (título/artista), tests y benchmark
-TP4 COMPLETADO — Árbol AVL con rotaciones, comparación BST vs. AVL y análisis de balance
-TP5 INCOMPLETO (se completo fuera de termino)
-TP6 COMPLETADO — Colas de prioridad y Heaps para Ranking (Versión 4)
-TP7 COMPLETADO — Grafo de Colaboraciones y Lista de Adyacencia (Versión 5)
-TP8 COMPLETADO — Búsqueda BFS y DFS en Grafos integrados (Versión 6)
-TP9 COMPLETADO — Optimización de Grafos Pesados con Dijkstra (Versión 7)
+- **TP0 COMPLETADO** — Propuesta de dominio, requerimientos y diseño inicial.
+- **TP1 COMPLETADO** — Modelado del dominio con POO, encapsulamiento y lectura JSON.
+- **TP2 COMPLETADO** — Análisis de complejidad y justificación de estrategias de búsqueda.
+- **TP3 COMPLETADO** — Árbol Binario de Búsqueda (título/artista), tests y benchmark.
+- **TP4 COMPLETADO** — Árbol AVL con rotaciones, comparación BST vs. AVL y balanceo.
+- **TP5 COMPLETADO** — Jerarquía taxonómica con Árbol General N-ario (Era -> Género -> Canciones).
+- **TP6 COMPLETADO** — Colas de prioridad y Max-Heap manual para Ranking Top-N.
+- **TP7 COMPLETADO** — Grafo de colaboraciones no dirigido y lista de adyacencia.
+- **TP8 COMPLETADO** — Recorridos BFS (grados de separación) y DFS (cadenas profundas).
+- **TP9 COMPLETADO** — Optimización de grafos pesados con Algoritmo de Dijkstra.
+- **TP10 COMPLETADO** — Integración en CLI con Árbol AVL, formalización de límites y Demo Day.
+
 ---
 
 ## Instalación y ejecución
 
 ### Requisitos previos
-
 - Python 3.8 o superior.
 - Git.
 
 ### 1. Clonar el repositorio
+```bash
 git clone https://github.com/CelinaJP/SISTEMA-DE-RECOMENDACIONES.git
+```
 
 ### 2. Navegar al proyecto
+```bash
 cd SISTEMA-DE-RECOMENDACIONES
+```
 
-### 3. Crear y activar entorno virtual (opcional)
-python3 -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
-
-### 4. Instalar dependencias
-pip3 install -r requirements.txt
-
-### 5. Ejecutar la aplicación
+### 3. Ejecutar la aplicación
+```bash
 python3 main.py
+```
 
-##
+### 4. Ejecutar la suite de tests
+```bash
+python3 -m unittest discover -s test -v
+```
+```
